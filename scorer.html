@@ -1774,14 +1774,15 @@
     }
 
     function handleIncomingData(data) {
-      if (data.type === 'video_proof') {
+      if (data.type === 'video_proof_fast') {
         const inn = match.innings[data.innings === "Innings1" ? 0 : 1];
         if (!inn) return;
         
         const ball = findBallObject(inn.balls, data.over, data.ball);
         if (ball) {
-          ball.proof.blob = data.blob;
-          ball.proof.objectUrl = URL.createObjectURL(data.blob);
+          const videoBlob = new Blob([data.arrayBuffer], { type: 'video/webm' });
+          ball.proof.blob = videoBlob;
+          ball.proof.objectUrl = URL.createObjectURL(videoBlob);
           ball.proof.status = 'ready';
           
           showToast(`Proof ready: Over ${data.over} Ball ${data.ball} 📹`);
