@@ -7,9 +7,8 @@
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght=300;400;500;600;700;800&display=swap" rel="stylesheet">
   
-  <!-- Premium CDNs for P2P, Scanning, and Microsoft Authentication -->
   <script src="https://cdn.jsdelivr.net/npm/peerjs@1.4.7/dist/peerjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
   <script src="https://alcdn.msauth.net/browser/2.32.2/js/msal-browser.min.js"></script>
@@ -256,12 +255,8 @@
 
   <div class="app-container">
     
-    <!-- Toast Popup -->
     <div id="toast" class="toast">Camera Initialised</div>
 
-    <!-- ==========================================
-         SCREEN 1: PAIRING & SCANNING
-         ========================================== -->
     <div id="screen-pairing" class="screen active">
       <h1>Camera Pairing</h1>
       <p class="subtitle">Scan Scorer QR code to link P2P</p>
@@ -280,9 +275,6 @@
       <button class="btn btn-secondary" onclick="window.location.href='index.html'">Back to RolesSelector</button>
     </div>
 
-    <!-- ==========================================
-         SCREEN 2: CAMERA CONTROL PANEL
-         ========================================== -->
     <div id="screen-camera" class="screen">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <h1 style="font-size: 2rem; text-align: left;">Live Proof Feed</h1>
@@ -298,7 +290,6 @@
         </div>
       </div>
 
-      <!-- Action status list -->
       <div style="background: rgba(0,0,0,0.35); border: 1px solid var(--card-border); border-radius: 16px; padding: 12px; margin-bottom: 16px; font-size: 0.8rem; display: flex; flex-direction: column; gap: 8px;">
         <div style="display:flex; justify-content:space-between;">
           <span style="color:var(--text-muted);">Current Action:</span>
@@ -319,7 +310,6 @@
         <button class="btn btn-danger" style="flex:1; height:44px; font-size:0.85rem;" onclick="disconnectFromScorer()">Unpair Phone</button>
       </div>
 
-      <!-- Slide-down Microsoft Configuration and Auth Panel -->
       <div id="onedrive-config-panel" style="display: none; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 14px; margin-top: 4px;">
         <h3 style="font-family:'Bebas Neue'; color:var(--gold); font-size:1.4rem; margin-bottom:10px;">OneDrive Integration Config</h3>
         
@@ -329,7 +319,7 @@
         </div>
         <div class="input-group">
           <label class="input-label" for="ms-tenant-id">Directory (tenant) ID</label>
-          <input type="text" id="ms-tenant-id" class="input-field" placeholder="e.g. common" value="common">
+          <input type="text" id="ms-tenant-id" class="input-field" placeholder="e.g. common or your Developer Tenant GUID" value="common">
         </div>
         
         <div style="display:flex; gap:10px; margin-top:14px;">
@@ -479,7 +469,7 @@
       
       recordedChunks = [];
       try {
-        // Prefer lightweight VP8 codec if available on mobile
+        // Enforce tight low-bitrate settings so long gaps don't cause high footprints on 4GB devices
         let options = { 
           mimeType: 'video/webm;codecs=vp8',
           videoBitsPerSecond: 180000
@@ -542,7 +532,7 @@
         // 1. Trigger recorder stop to yield Blob
         mediaRecorder.onstop = function() {
           const videoBlob = new Blob(recordedChunks, { type: 'video/webm' });
-          recordedChunks = []; // Garbage Collection Optimization: immediately free active memory
+          recordedChunks = []; // Clear array elements instantly to free up heap memory
           
           // 2. Restart recording INSTANTLY for the next ball to avoid missing deliveries
           if (mediaRecorder.state === 'inactive') {
@@ -636,7 +626,8 @@
         auth: {
           clientId: clientId,
           authority: `https://login.microsoftonline.com/${tenantId}`,
-          redirectUri: window.location.origin + window.location.pathname
+          redirectUri: window.location.origin + window.location.pathname,
+          validateAuthority: false // 🌟 CRITICAL: Prevents crash loops when using explicit dev tenant GUIDs on a multitenant Azure app registration
         },
         cache: {
           cacheLocation: "localStorage",
@@ -665,6 +656,7 @@
           }
         }).catch(err => {
           console.error("MSAL Redirect handler error:", err);
+          showToast("Auth redirect failure. Check console or use Incognito tab.");
         });
       } catch (err) {
         console.error("MSAL Initialization failed:", err);
@@ -792,7 +784,6 @@
       document.getElementById('status-action').innerText = `Uploading ${task.filename}...`;
 
       // Upload binary to OneDrive Path-based API (Graph API)
-      // Path format: /me/drive/root:/cricket/match_name/innings/filename:/content
       const uploadUrl = `https://graph.microsoft.com/v1.0/me/drive/root:/cricket/${activeMatchName}/${task.innings}/${task.filename}:/content`;
       
       fetch(uploadUrl, {
