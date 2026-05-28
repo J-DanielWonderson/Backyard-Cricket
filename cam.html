@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cricket Proof System - Camera Phone</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Premium CDNs for P2P, Scanning, and Microsoft Authentication -->
+  <script src="https://cdn.jsdelivr.net/npm/peerjs@1.4.7/dist/peerjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+  <script src="https://alcdn.msauth.net/browser/2.32.2/js/msal-browser.min.js"></script>
+
+  <style>
+    :root {
+      --primary-bg: radial-gradient(circle at 50% 15%, #071f13, #020604);
+      --card-bg: rgba(255, 255, 255, 0.04);
+      --card-border: rgba(255, 255, 255, 0.08);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --cricket-green: #00b355;
+      --cricket-green-glow: rgba(0, 179, 85, 0.3);
+      --gold: #ffd700;
+      --gold-glow: rgba(255, 215, 0, 0.25);
+      --danger-red: #ff4d4d;
+      --danger-glow: rgba(255, 77, 77, 0.3);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      touch-action: manipulation;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--primary-bg);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      overflow-x: hidden;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 500px;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: 12px;
+      position: relative;
+    }
+
+    .screen {
+      display: none;
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 28px;
+      padding: 20px;
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.6);
+      z-index: 10;
+      margin-top: auto;
+      margin-bottom: auto;
+      animation: screenFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+    }
+
+    @keyframes screenFadeIn {
+      from { opacity: 0; transform: translateY(20px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    h1 {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.8rem;
+      text-align: center;
+      margin-bottom: 2px;
+      background: linear-gradient(135deg, #ffffff 30%, var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 4px 15px rgba(0,0,0,0.6);
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      font-weight: 300;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 52px;
+      border: none;
+      border-radius: 16px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      font-family: 'Poppins', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--cricket-green), #00803c);
+      color: white;
+      box-shadow: 0 6px 20px var(--cricket-green-glow);
+    }
+
+    .btn-gold {
+      background: linear-gradient(135deg, var(--gold), #ccaa00);
+      color: #030a06;
+      box-shadow: 0 6px 20px var(--gold-glow);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--card-border);
+      color: var(--text-main);
+    }
+
+    /* Video Viewport styles */
+    .viewport-container {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: #000;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+      position: relative;
+      margin-bottom: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+
+    #preview-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .viewport-overlay {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 4px 10px;
+      border-radius: 50px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--danger-red);
+      display: inline-block;
+    }
+
+    .recording .status-dot {
+      background: var(--danger-red);
+      animation: flash 1s infinite alternate;
+    }
+
+    @keyframes flash {
+      from { opacity: 0.3; }
+      to { opacity: 1; }
+    }
+
+    /* Form Fields */
+    .input-group {
+      margin-bottom: 14px;
+      width: 100%;
+    }
+
+    .input-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      display: block;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .input-field {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.85rem;
+      color: white;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: rgba(13, 27, 20, 0.96);
+      border: 1px solid var(--gold);
+      color: white;
+      padding: 12px 20px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7);
+      transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 10000;
+      pointer-events: none;
+      text-align: center;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Toast Popup -->
+    <div id="toast" class="toast">Camera Initialised</div>
+
+    <!-- ==========================================
+         SCREEN 1: PAIRING & SCANNING
+         ========================================== -->
+    <div id="screen-pairing" class="screen active">
+      <h1>Camera Pairing</h1>
+      <p class="subtitle">Scan Scorer QR code to link P2P</p>
+
+      <div class="viewport-container" style="aspect-ratio: 1/1;">
+        <div id="qr-reader" style="width: 100%; height: 100%;"></div>
+        <div class="viewport-overlay">
+          <span class="status-dot" style="background:var(--gold);"></span> Scan Active
+        </div>
+      </div>
+
+      <div style="text-align: center; margin-bottom: 16px;">
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Point camera at the QR code displayed on the scorer phone screen.</p>
+      </div>
+
+      <button class="btn btn-secondary" onclick="window.location.href='index.html'">Back to RolesSelector</button>
+    </div>
+
+    <!-- ==========================================
+         SCREEN 2: CAMERA CONTROL PANEL
+         ========================================== -->
+    <div id="screen-camera" class="screen">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h1 style="font-size: 2rem; text-align: left;">Live Proof Feed</h1>
+        <span id="p2p-status-badge" class="viewport-overlay" style="position:static; margin:0; background:rgba(0,179,85,0.15); color:var(--cricket-green); border:1px solid rgba(0,179,85,0.3);">🟢 Linked</span>
+      </div>
+      
+      <p class="subtitle" style="text-align: left; margin-bottom: 12px;" id="match-meta-subtitle">Match: Preparing...</p>
+
+      <div class="viewport-container">
+        <video id="preview-video" autoplay muted playsinline></video>
+        <div id="recording-status-overlay" class="viewport-overlay">
+          <span class="status-dot"></span> <span id="recording-status-text">Standby</span>
+        </div>
+      </div>
+
+      <!-- Action status list -->
+      <div style="background: rgba(0,0,0,0.35); border: 1px solid var(--card-border); border-radius: 16px; padding: 12px; margin-bottom: 16px; font-size: 0.8rem; display: flex; flex-direction: column; gap: 8px;">
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:var(--text-muted);">Current Action:</span>
+          <b id="status-action" style="color:white;">Initializing Stream...</b>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+          <span style="color:var(--text-muted);">OneDrive Sync:</span>
+          <b id="status-onedrive" style="color:var(--text-muted);">Disabled</b>
+        </div>
+        <div style="display:flex; justify-content:space-between;" id="retry-queue-row">
+          <span style="color:var(--text-muted);">Pending Uploads Queue:</span>
+          <b id="status-queue" style="color:white;">0 files</b>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px; margin-bottom:12px;">
+        <button id="btn-toggle-onedrive" class="btn btn-secondary" style="flex:1; height:44px; font-size:0.85rem;" onclick="toggleOneDrivePanel()">OneDrive Settings</button>
+        <button class="btn btn-danger" style="flex:1; height:44px; font-size:0.85rem;" onclick="disconnectFromScorer()">Unpair Phone</button>
+      </div>
+
+      <!-- Slide-down Microsoft Configuration and Auth Panel -->
+      <div id="onedrive-config-panel" style="display: none; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 14px; margin-top: 4px;">
+        <h3 style="font-family:'Bebas Neue'; color:var(--gold); font-size:1.4rem; margin-bottom:10px;">OneDrive Integration Config</h3>
+        
+        <div class="input-group">
+          <label class="input-label" for="ms-client-id">Application (client) ID</label>
+          <input type="text" id="ms-client-id" class="input-field" placeholder="Paste Client ID from Azure AD Portal">
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="ms-tenant-id">Directory (tenant) ID</label>
+          <input type="text" id="ms-tenant-id" class="input-field" placeholder="e.g. common" value="common">
+        </div>
+        
+        <div style="display:flex; gap:10px; margin-top:14px;">
+          <button class="btn btn-primary" style="height:40px; font-size:0.8rem;" onclick="saveMSConfigAndLogin()">Link Microsoft Account</button>
+          <button class="btn btn-secondary" style="height:40px; font-size:0.8rem; display:none;" id="btn-ms-logout" onclick="logoutMicrosoft()">Logout</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    /* ==========================================
+       P2P & CAMERA CONTROL LOGIC
+       ========================================== */
+    let peer = null;
+    let conn = null;
+    let localStream = null;
+    let mediaRecorder = null;
+    let recordedChunks = [];
+    
+    // Microsoft OneDrive configuration variables
+    let msalInstance = null;
+    let msAccessToken = null;
+    let uploadQueue = [];
+    let isUploading = false;
+    let activeMatchName = "Backyard_Match";
+
+    function showToast(msg, duration = 3000) {
+      const toast = document.getElementById('toast');
+      toast.innerText = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), duration);
+    }
+
+    // Initialize HTML5 QR Scanner
+    let html5QrScanner = null;
+    
+    window.onload = function() {
+      // 1. Initialise scan UI
+      startQRScanner();
+      // 2. Pre-fill OneDrive client credentials if they were previously entered
+      loadOneDriveSettings();
+      // 3. Keep running background retry loop for failed uploads
+      setInterval(processRetryQueue, 15000);
+    };
+
+    function startQRScanner() {
+      if (html5QrScanner) return;
+      
+      html5QrScanner = new Html5Qrcode("qr-reader");
+      html5QrScanner.start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        (qrText) => {
+          showToast("Scorer ID scanned! Connecting...");
+          html5QrScanner.stop().then(() => {
+            html5QrScanner = null;
+            connectToScorer(qrText);
+          });
+        },
+        (err) => {
+          // Silent scan error polling
+        }
+      ).catch(err => {
+        console.error("Camera permissions denied or device missing environment camera.", err);
+        showToast("Error: Rear camera not accessible.");
+      });
+    }
+
+    function connectToScorer(scorerPeerId) {
+      // Create local PeerJS instance
+      peer = new Peer();
+      
+      peer.on('open', (id) => {
+        const connection = peer.connect(scorerPeerId, {
+          serialization: "json"
+        });
+        
+        connection.on('open', () => {
+          conn = connection;
+          setupP2PConnection();
+        });
+      });
+
+      peer.on('error', (err) => {
+        console.error("PeerJS error:", err);
+        showToast("P2P Connection failure!");
+        resetToScanner();
+      });
+    }
+
+    function setupP2PConnection() {
+      showToast("Connected to Scorer! 🟢");
+      
+      // Navigate screens
+      document.getElementById('screen-pairing').classList.remove('active');
+      document.getElementById('screen-camera').classList.add('active');
+      
+      document.getElementById('status-action').innerText = "Acquiring rear camera feed...";
+      
+      // Bind connection listener
+      conn.on('data', (data) => {
+        handleIncomingCommand(data);
+      });
+
+      conn.on('close', () => {
+        showToast("Connection closed by Scorer.");
+        disconnectFromScorer();
+      });
+
+      // Launch media capture
+      startCameraCapture();
+    }
+
+    function startCameraCapture() {
+      const constraints = {
+        video: {
+          facingMode: "environment",
+          width: { ideal: 640 },
+          height: { ideal: 480 },
+          frameRate: { ideal: 24 }
+        },
+        audio: true
+      };
+
+      navigator.mediaDevices.getUserMedia(constraints)
+        .then((stream) => {
+          localStream = stream;
+          const videoElement = document.getElementById('preview-video');
+          videoElement.srcObject = stream;
+          
+          document.getElementById('status-action').innerText = "Standby (Ready for Ball)";
+          
+          // Initialise recorder loop
+          initMediaRecorder();
+        })
+        .catch((err) => {
+          console.error("getUserMedia error:", err);
+          showToast("Error: Microphone/Camera permissions required!");
+          document.getElementById('status-action').innerText = "Failed to launch camera feed";
+        });
+    }
+
+    function initMediaRecorder() {
+      if (!localStream) return;
+      
+      recordedChunks = [];
+      try {
+        // Prefer lightweight VP8 codec if available on mobile
+        let options = { mimeType: 'video/webm;codecs=vp8,opus' };
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+          options = { mimeType: 'video/webm' };
+        }
+        
+        mediaRecorder = new MediaRecorder(localStream, options);
+        
+        mediaRecorder.ondataavailable = function(e) {
+          if (e.data && e.data.size > 0) {
+            recordedChunks.push(e.data);
+          }
+        };
+
+        // Start recording immediately
+        mediaRecorder.start();
+        updateRecordingUIState(true, "Recording Next Ball...");
+      } catch (e) {
+        console.error("MediaRecorder initialize failed:", e);
+        showToast("MediaRecorder unsupported in this browser.");
+      }
+    }
+
+    function updateRecordingUIState(isRecording, label) {
+      const overlay = document.getElementById('recording-status-overlay');
+      const text = document.getElementById('recording-status-text');
+      
+      if (isRecording) {
+        overlay.className = "viewport-overlay recording";
+        text.innerText = label;
+      } else {
+        overlay.className = "viewport-overlay";
+        text.innerText = label;
+      }
+    }
+
+    function handleIncomingCommand(data) {
+      if (data.action === 'ball_completed') {
+        if (!mediaRecorder) return;
+        
+        // Save current ball metadata
+        const metadata = {
+          innings: data.innings,
+          over: data.over,
+          ball: data.ball,
+          runs: data.runs,
+          type: data.type,
+          isLegal: data.isLegal,
+          matchName: data.matchName || "Backyard_Match"
+        };
+        
+        activeMatchName = metadata.matchName.replace(/\s+/g, '_');
+        document.getElementById('match-meta-subtitle').innerText = `Match: ${metadata.matchName} • Innings: ${metadata.innings}`;
+        
+        // 1. Trigger recorder stop to yield Blob
+        mediaRecorder.onstop = function() {
+          const videoBlob = new Blob(recordedChunks, { type: 'video/webm' });
+          recordedChunks = [];
+          
+          // 2. Restart recording INSTANTLY for the next ball to avoid missing deliveries
+          if (mediaRecorder.state === 'inactive') {
+            mediaRecorder.start();
+            updateRecordingUIState(true, `Recording Over ${metadata.over} Ball ${metadata.ball + 1}...`);
+          }
+          
+          // 3. Immediately send blob to Scorer Phone locally
+          sendBlobToScorer(videoBlob, metadata);
+          
+          // 4. Archive blob to Microsoft OneDrive in background
+          queueOneDriveUpload(videoBlob, metadata);
+        };
+        
+        mediaRecorder.stop();
+        document.getElementById('status-action').innerText = "Processing & sending ball clip...";
+        
+      } else if (data.action === 'undo') {
+        showToast("Last ball undone! Resetting camera buffer.");
+        // Reset current media recorder session without yielding a clip
+        if (mediaRecorder && mediaRecorder.state === 'recording') {
+          mediaRecorder.onstop = function() {
+            recordedChunks = [];
+            mediaRecorder.start();
+            updateRecordingUIState(true, "Recording (State Undone)...");
+            document.getElementById('status-action').innerText = "Buffer reset after Undo";
+          };
+          mediaRecorder.stop();
+        }
+      }
+    }
+
+    function sendBlobToScorer(blob, meta) {
+      if (conn && conn.open) {
+        conn.send({
+          type: 'video_proof',
+          innings: meta.innings,
+          over: meta.over,
+          ball: meta.ball,
+          blob: blob
+        });
+        showToast(`Locally sent clip for Over ${meta.over} Ball ${meta.ball}`);
+      }
+    }
+
+    function disconnectFromScorer() {
+      if (localStream) {
+        localStream.getTracks().forEach(track => track.stop());
+        localStream = null;
+      }
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+      }
+      if (peer) {
+        peer.destroy();
+        peer = null;
+      }
+      conn = null;
+      resetToScanner();
+    }
+
+    function resetToScanner() {
+      document.getElementById('screen-camera').classList.remove('active');
+      document.getElementById('screen-pairing').classList.add('active');
+      document.getElementById('match-meta-subtitle').innerText = "Match: Preparing...";
+      startQRScanner();
+    }
+
+    /* ==========================================
+       MICROSOFT ONEDRIVE GRAPH ARCHIVER
+       ========================================== */
+    function toggleOneDrivePanel() {
+      const panel = document.getElementById('onedrive-config-panel');
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function loadOneDriveSettings() {
+      const savedClientId = localStorage.getItem('onedrive_client_id');
+      const savedTenantId = localStorage.getItem('onedrive_tenant_id') || 'common';
+      
+      if (savedClientId) {
+        document.getElementById('ms-client-id').value = savedClientId;
+        document.getElementById('ms-tenant-id').value = savedTenantId;
+        
+        initializeMSAL(savedClientId, savedTenantId);
+      }
+    }
+
+    function initializeMSAL(clientId, tenantId) {
+      const msalConfig = {
+        auth: {
+          clientId: clientId,
+          authority: `https://login.microsoftonline.com/${tenantId}`,
+          redirectUri: window.location.origin + window.location.pathname
+        },
+        cache: {
+          cacheLocation: "localStorage",
+          storeAuthStateInCookie: false
+        }
+      };
+
+      try {
+        msalInstance = new msal.PublicClientApplication(msalConfig);
+        
+        // Handle redirect landing code
+        msalInstance.handleRedirectPromise().then(response => {
+          if (response) {
+            msAccessToken = response.accessToken;
+            localStorage.setItem('onedrive_access_token', msAccessToken);
+            updateOneDriveUI(true, response.account.username);
+            showToast("OneDrive Login Connected!");
+          } else {
+            // Check if account already exists in cache
+            const accounts = msalInstance.getAllAccounts();
+            if (accounts.length > 0) {
+              updateOneDriveUI(true, accounts[0].username);
+              // Fetch token silently
+              requestSilentToken(accounts[0]);
+            }
+          }
+        }).catch(err => {
+          console.error("MSAL Redirect handler error:", err);
+        });
+      } catch (err) {
+        console.error("MSAL Initialization failed:", err);
+      }
+    }
+
+    function saveMSConfigAndLogin() {
+      const clientId = document.getElementById('ms-client-id').value.trim();
+      const tenantId = document.getElementById('ms-tenant-id').value.trim() || 'common';
+
+      if (!clientId) {
+        showToast("Please enter Microsoft Application (client) ID");
+        return;
+      }
+
+      localStorage.setItem('onedrive_client_id', clientId);
+      localStorage.setItem('onedrive_tenant_id', tenantId);
+
+      initializeMSAL(clientId, tenantId);
+
+      // Trigger login redirect
+      const loginRequest = {
+        scopes: ["Files.ReadWrite.All", "User.Read"]
+      };
+
+      msalInstance.loginRedirect(loginRequest);
+    }
+
+    function requestSilentToken(account) {
+      const tokenRequest = {
+        account: account,
+        scopes: ["Files.ReadWrite.All"]
+      };
+
+      msalInstance.acquireTokenSilent(tokenRequest)
+        .then(response => {
+          msAccessToken = response.accessToken;
+          localStorage.setItem('onedrive_access_token', msAccessToken);
+          updateOneDriveUI(true, account.username);
+        })
+        .catch(err => {
+          console.warn("Silent token acquisition failed. Requesting interaction...", err);
+          if (err instanceof msal.InteractionRequiredAuthError) {
+            msalInstance.loginRedirect(tokenRequest);
+          }
+        });
+    }
+
+    function logoutMicrosoft() {
+      localStorage.removeItem('onedrive_client_id');
+      localStorage.removeItem('onedrive_tenant_id');
+      localStorage.removeItem('onedrive_access_token');
+      
+      if (msalInstance) {
+        msalInstance.logoutRedirect();
+      } else {
+        updateOneDriveUI(false);
+      }
+    }
+
+    function updateOneDriveUI(linked, username = "") {
+      const statusLabel = document.getElementById('status-onedrive');
+      const logoutBtn = document.getElementById('btn-ms-logout');
+      
+      if (linked) {
+        statusLabel.innerText = `Connected (${username.split('@')[0]})`;
+        statusLabel.style.color = 'var(--cricket-green)';
+        logoutBtn.style.display = 'inline-flex';
+      } else {
+        statusLabel.innerText = "Disabled (Local only)";
+        statusLabel.style.color = 'var(--text-muted)';
+        logoutBtn.style.display = 'none';
+      }
+    }
+
+    /* ==========================================
+       BACKGROUND FILE UPLOAD & FAILURE QUEUE
+       ========================================== */
+    function queueOneDriveUpload(blob, meta) {
+      // Format dynamic filename
+      const scoreTag = meta.type === 'wicket' ? 'Wicket' : `${meta.runs}runs`;
+      const typeTag = (meta.type !== 'run' && meta.type !== 'wicket') ? `_${meta.type}` : '';
+      const safeMatchName = activeMatchName;
+      const filename = `Over${meta.over}_Ball${meta.ball}_${scoreTag}${typeTag}.webm`;
+      
+      const uploadTask = {
+        id: `${meta.innings}_${meta.over}_${meta.ball}`,
+        filename: filename,
+        innings: meta.innings,
+        over: meta.over,
+        ball: meta.ball,
+        blob: blob,
+        retries: 0
+      };
+
+      uploadQueue.push(uploadTask);
+      updateQueueUI();
+      
+      // Trigger queue processor if not already uploading
+      processUploadQueue();
+    }
+
+    function updateQueueUI() {
+      const val = document.getElementById('status-queue');
+      val.innerText = `${uploadQueue.length} files`;
+    }
+
+    function processUploadQueue() {
+      if (isUploading || uploadQueue.length === 0) return;
+      
+      if (!msAccessToken) {
+        // If not logged in, we mark all items in the queue as uploaded (failed status on scorer)
+        // or just let them wait. Since OneDrive is linked, let's wait or notify scorer they are pending
+        notifyScorerArchiveStatus(uploadQueue[0], 'uploading');
+        
+        // Wait for token
+        document.getElementById('status-onedrive').innerText = "Waiting for login token...";
+        return;
+      }
+
+      isUploading = true;
+      const task = uploadQueue[0];
+      
+      notifyScorerArchiveStatus(task, 'uploading');
+      document.getElementById('status-action').innerText = `Uploading ${task.filename}...`;
+
+      // Upload binary to OneDrive Path-based API (Graph API)
+      // Path format: /me/drive/root:/cricket/match_name/innings/filename:/content
+      const uploadUrl = `https://graph.microsoft.com/v1.0/me/drive/root:/cricket/${activeMatchName}/${task.innings}/${task.filename}:/content`;
+      
+      fetch(uploadUrl, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${msAccessToken}`,
+          'Content-Type': 'video/webm'
+        },
+        body: task.blob
+      })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`OneDrive API upload failed with code ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        showToast(`OneDrive Archived: ${task.filename}`);
+        
+        // Notify Scorer of successful archival status and links
+        notifyScorerArchiveStatus(task, 'archived', data.id, data.webUrl);
+        
+        // Remove from queue and proceed
+        uploadQueue.shift();
+        isUploading = false;
+        updateQueueUI();
+        document.getElementById('status-action').innerText = "Standby (Ready for Ball)";
+        
+        processUploadQueue();
+      })
+      .catch(err => {
+        console.error("OneDrive upload error:", err);
+        task.retries++;
+        
+        if (task.retries >= 3) {
+          // Permafail this item, notify scorer of error, and pop it
+          showToast(`OneDrive Upload Failed: ${task.filename}`);
+          notifyScorerArchiveStatus(task, 'failed');
+          uploadQueue.shift();
+        } else {
+          // Shift failed item to the end of the queue to retry later
+          uploadQueue.push(uploadQueue.shift());
+        }
+        
+        isUploading = false;
+        updateQueueUI();
+        document.getElementById('status-action').innerText = "Standby (Ready for Ball)";
+        
+        // Wait 5 seconds before retrying another file to avoid rate limits
+        setTimeout(processUploadQueue, 5000);
+      });
+    }
+
+    function processRetryQueue() {
+      // Re-trigger queue processing periodically in case network returns
+      if (uploadQueue.length > 0) {
+        // Attempt silient token refresh if we have a profile to keep access active
+        if (msalInstance) {
+          const accounts = msalInstance.getAllAccounts();
+          if (accounts.length > 0) {
+            requestSilentToken(accounts[0]);
+          }
+        }
+        processUploadQueue();
+      }
+    }
+
+    function notifyScorerArchiveStatus(task, status, fileId = null, fileUrl = null) {
+      if (conn && conn.open) {
+        conn.send({
+          type: 'archive_status',
+          innings: task.innings,
+          over: task.over,
+          ball: task.ball,
+          status: status,
+          oneDriveId: fileId,
+          oneDriveUrl: fileUrl
+        });
+      }
+    }
+  </script>
+
+</body>
+</html>
