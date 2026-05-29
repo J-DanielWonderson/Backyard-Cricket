@@ -505,10 +505,8 @@
           const videoElement = document.getElementById('preview-video');
           videoElement.srcObject = stream;
 
-          document.getElementById('status-action').innerText = "Standby (Ready for Ball)";
-
-          // Initialise recorder loop
-          initMediaRecorder();
+          document.getElementById('status-action').innerText = "Standby (Waiting for Scorer)";
+          updateRecordingUIState(false, "Idle");
         })
         .catch((err) => {
           console.error("getUserMedia error:", err);
@@ -517,62 +515,67 @@
         });
     }
 
-    function initMediaRecorder() {
+    // Part 6: Report proof status updates to scorer
+    function sendStatusToScorer(status, reason = null, meta = null) {
+      const activeMeta = meta || currentBallMeta;
+      if (conn && conn.open) {
+        conn.send({
+          type: "proof_status",
+          innings: activeMeta.innings,
+          over: activeMeta.over,
+          ball: activeMeta.ball,
+          status: status,
+          reason: reason
+        });
+      }
+    }
+
+    // Part 1: Start media recorder manually on Start Recording command
+    function startMediaRecorderForBall() {
       if (!localStream) {
-        console.warn("initMediaRecorder: No local stream available");
+        console.warn("startMediaRecorderForBall: No local stream available");
         return;
       }
 
-      // Part 2: Avoid duplicate recorders by cleaning up any existing instance first
       if (mediaRecorder) {
         mediaRecorder.ondataavailable = null;
         mediaRecorder.onstop = null;
         if (mediaRecorder.state !== 'inactive') {
           try {
             mediaRecorder.stop();
-          } catch (e) {
-            console.warn("Error stopping old recorder:", e);
-          }
+          } catch (e) {}
         }
         mediaRecorder = null;
       }
 
       recordedChunks = [];
-      currentChunkIndex = 0;
 
       try {
-        // Part 2: Robust mimetype fallback selector
         let options = {};
         if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
           options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 150000 };
-          console.log("Using primary mimetype: video/webm;codecs=vp8");
         } else if (MediaRecorder.isTypeSupported('video/webm')) {
           options = { mimeType: 'video/webm', videoBitsPerSecond: 150000 };
-          console.log("Using fallback mimetype: video/webm");
         } else {
           options = { videoBitsPerSecond: 150000 };
-          console.log("No webm mimetype supported, using browser defaults");
         }
 
         mediaRecorder = new MediaRecorder(localStream, options);
 
         mediaRecorder.ondataavailable = function (e) {
           if (e.data && e.data.size > 0) {
-            if (isUndoing) {
-              // Discard any raw data chunks if we are actively resetting after an Undo action
-              return;
-            }
             recordedChunks.push(e.data);
           }
         };
 
-        // Part 2: Reduce MediaRecorder timeslice latency to 1000ms
         mediaRecorder.start(1000);
-        updateRecordingUIState(true, "Recording Next Ball...");
-        console.log("MediaRecorder started with 1s timeslice.");
+        updateRecordingUIState(true, "Recording Active...");
+        document.getElementById('status-action').innerText = `Recording Over ${currentBallMeta.over} Ball ${currentBallMeta.ball}`;
+        sendStatusToScorer("recording");
       } catch (e) {
-        console.error("MediaRecorder initialize failed:", e);
-        showToast("MediaRecorder unsupported in this browser.");
+        console.error("MediaRecorder start failed:", e);
+        showToast("Recorder start failed!");
+        sendStatusToScorer("failed", e.message || "MediaRecorder start failed", currentBallMeta);
       }
     }
 
@@ -589,12 +592,15 @@
       }
     }
 
-    // Part 1: Chunked binary sending function
+    // Part 1 & 5: Backpressure-aware P2P sending function with progress reports
     async function sendBlobInPieces(blob, meta) {
       if (!conn || !conn.open) {
         throw new Error("P2P connection is closed");
       }
       const clipId = `${meta.innings}_${meta.over}_${meta.ball}_${Date.now()}`;
+      
+      sendStatusToScorer("sending", null, meta);
+
       const pieceSize = 32 * 1024; // 32 KB pieces
       const buffer = await blob.arrayBuffer();
       const totalPieces = Math.ceil(buffer.byteLength / pieceSize);
@@ -610,15 +616,17 @@
         totalBytes: buffer.byteLength
       });
 
+      let lastProgressTime = Date.now();
+
       for (let i = 0; i < totalPieces; i++) {
         const piece = buffer.slice(i * pieceSize, (i + 1) * pieceSize);
 
-        // Backpressure check using bufferedAmount
+        // Backpressure check using bufferedAmount (limit to 256 KB)
         while (
           conn &&
           conn.open &&
           conn.dataChannel &&
-          conn.dataChannel.bufferedAmount > 512 * 1024
+          conn.dataChannel.bufferedAmount > 256 * 1024
         ) {
           await new Promise(resolve => setTimeout(resolve, 50));
         }
@@ -633,19 +641,49 @@
           index: i,
           buffer: piece
         });
+
+        // Send progress messages every 20 pieces or once per second
+        if (i % 20 === 0 || Date.now() - lastProgressTime > 1000 || i === totalPieces - 1) {
+          lastProgressTime = Date.now();
+          console.log(`Progress: Sent ${i + 1}/${totalPieces} pieces for ${clipId}`);
+        }
+      }
+
+      // Wait until bufferedAmount is below 64 KB before sending video_end
+      while (
+        conn &&
+        conn.open &&
+        conn.dataChannel &&
+        conn.dataChannel.bufferedAmount > 64 * 1024
+      ) {
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+
+      if (!conn || !conn.open) {
+        throw new Error("P2P connection closed before video_end could be sent");
       }
 
       conn.send({
         type: "video_end",
         clipId
       });
-      console.log(`Finished P2P send: ${clipId}`);
+
+      sendStatusToScorer("ready", null, meta);
+      console.log(`Finished P2P send successfully for ${clipId}`);
     }
 
     function handleIncomingCommand(data) {
-      if (data.action === 'ball_completed') {
-        if (!mediaRecorder) return;
-
+      if (data.action === 'start_recording') {
+        currentBallMeta.innings = data.innings;
+        currentBallMeta.over = data.over;
+        currentBallMeta.ball = data.ball;
+        if (data.matchName) {
+          activeMatchName = data.matchName.replace(/\s+/g, '_');
+          document.getElementById('match-meta-subtitle').innerText = `Match: ${data.matchName} • Innings: ${data.innings}`;
+        }
+        console.log("Start recording command received for ball:", currentBallMeta);
+        startMediaRecorderForBall();
+      } else if (data.action === 'ball_completed') {
         // Part 4: Consistency - capture metadata inside handler immediately
         const completedBallMeta = {
           innings: data.innings,
@@ -662,16 +700,19 @@
 
         console.log("Ball completed event received. Halting recorder...", completedBallMeta);
 
-        // Part 2: Stop mediaRecorder only if active
         if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+          // Tell scorer we are sealing the video clip
+          sendStatusToScorer("sealing", null, completedBallMeta);
+
           mediaRecorder.onstop = async function () {
             const videoBlob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
             recordedChunks = []; // Clear chunks immediately
             
-            // Restart recording for next ball immediately
-            initMediaRecorder();
+            // Return to idle UI state
+            updateRecordingUIState(false, "Idle");
+            document.getElementById('status-action').innerText = "Standby (Waiting for Scorer)";
 
-            // P2P chunked send (async)
+            // P2P send in background (async)
             if (conn && conn.open) {
               document.getElementById('status-action').innerText = "Sending proof clip...";
               sendBlobInPieces(videoBlob, completedBallMeta)
@@ -683,9 +724,11 @@
                   console.error("P2P video send failed:", err);
                   document.getElementById('status-action').innerText = "Proof send failed";
                   showToast("Proof send failed! ❌");
+                  sendStatusToScorer("failed", err.message || "P2P transfer failed", completedBallMeta);
                 });
             } else {
               document.getElementById('status-action').innerText = "Proof send failed (no peer)";
+              sendStatusToScorer("failed", "No P2P connection during transfer", completedBallMeta);
             }
 
             // Archive consolidated full ball clip to Microsoft OneDrive in background
@@ -695,24 +738,23 @@
           document.getElementById('status-action').innerText = "Assembling video clip...";
         } else {
           console.warn("mediaRecorder was not recording when ball completed");
-          initMediaRecorder();
+          updateRecordingUIState(false, "Idle");
+          document.getElementById('status-action').innerText = "Standby (Waiting for Scorer)";
+          sendStatusToScorer("failed", "Recording was not started", completedBallMeta);
         }
 
       } else if (data.action === 'undo') {
         showToast("Last ball undone! Discarding buffer.");
-        // Reset current media recorder session without yielding a clip
         if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-          isUndoing = true;
           mediaRecorder.onstop = function () {
             recordedChunks = [];
-            isUndoing = false;
-            initMediaRecorder();
+            updateRecordingUIState(false, "Idle");
             document.getElementById('status-action').innerText = "Buffer reset after Undo";
           };
           mediaRecorder.stop();
         } else {
           recordedChunks = [];
-          initMediaRecorder();
+          updateRecordingUIState(false, "Idle");
           document.getElementById('status-action').innerText = "Buffer reset after Undo";
         }
       } else if (data.action === 'set_active_ball') {
