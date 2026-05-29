@@ -964,6 +964,13 @@
        BACKGROUND FILE UPLOAD & FAILURE QUEUE
        ========================================== */
     function queueOneDriveUpload(blob, meta) {
+      // Check if OneDrive is configured or logged in
+      const savedClientId = localStorage.getItem('onedrive_client_id');
+      if (!savedClientId && !msAccessToken) {
+        console.log("OneDrive not configured; skipping archive notification");
+        return;
+      }
+
       // Part 6: Format filename using sanitized segments
       const scoreTag = meta.type === 'wicket' ? 'Wicket' : `${meta.runs}runs`;
       const typeTag = (meta.type !== 'run' && meta.type !== 'wicket') ? `_${meta.type}` : '';
@@ -1000,8 +1007,8 @@
       if (isUploading || uploadQueue.length === 0) return;
 
       if (!msAccessToken) {
-        notifyScorerArchiveStatus(uploadQueue[0], 'uploading');
-        document.getElementById('status-onedrive').innerText = "Waiting for login token...";
+        console.log("OneDrive not configured; skipping archive notification");
+        document.getElementById('status-onedrive').innerText = "OneDrive disabled / waiting for login";
         return;
       }
 
