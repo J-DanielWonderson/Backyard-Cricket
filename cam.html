@@ -342,10 +342,25 @@
           <label class="input-label" for="ms-client-id">Application (client) ID</label>
           <input type="text" id="ms-client-id" class="input-field" placeholder="Paste Client ID from Azure AD Portal">
         </div>
+
         <div class="input-group">
-          <label class="input-label" for="ms-tenant-id">Directory (tenant) ID</label>
+          <label class="input-label" for="ms-account-type">Microsoft Account Type</label>
+          <select id="ms-account-type" class="input-field" onchange="toggleTenantInput()" style="background: rgba(0, 0, 0, 0.5); color: white; border: 1px solid var(--card-border); border-radius: 12px; height: 42px;">
+            <option value="consumers">Personal OneDrive (consumers)</option>
+            <option value="organizations">Work or school (organizations)</option>
+            <option value="common">Any Microsoft account type (common)</option>
+            <option value="custom">Specific tenant ID</option>
+          </select>
+        </div>
+
+        <div class="input-group" id="ms-tenant-id-container" style="display: none;">
+          <label class="input-label" for="ms-tenant-id">Directory (tenant) ID / GUID</label>
           <input type="text" id="ms-tenant-id" class="input-field"
-            placeholder="e.g. common or your Developer Tenant GUID" value="common">
+            placeholder="e.g. your Developer Tenant GUID or domain">
+        </div>
+
+        <div style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.35;">
+          💡 Choose <b>Personal OneDrive</b> for personal Outlook, Hotmail, or Live accounts. Choose <b>Work or school</b> for standard Microsoft 365 accounts. Tenant GUID is only needed for custom single-tenant setups.
         </div>
 
         <div style="display:flex; gap:10px; margin-top:14px;">
@@ -432,9 +447,9 @@
       peer = new Peer();
 
       peer.on('open', (id) => {
-        const connection = peer.connect(scorerPeerId, {
-          serialization: "json"
-        });
+        // Part 1: Connect to scorer with default binary PeerJS connection (no serialization: "json")
+        console.log("P2P initialized. Connecting to scorer:", scorerPeerId);
+        const connection = peer.connect(scorerPeerId);
 
         connection.on('open', () => {
           conn = connection;
@@ -451,6 +466,7 @@
 
     function setupP2PConnection() {
       showToast("Connected to Scorer! 🟢");
+      console.log("P2P connected.");
 
       // Navigate screens
       document.getElementById('screen-pairing').classList.remove('active');
@@ -502,63 +518,58 @@
     }
 
     function initMediaRecorder() {
-      if (!localStream) return;
+      if (!localStream) {
+        console.warn("initMediaRecorder: No local stream available");
+        return;
+      }
+
+      // Part 2: Avoid duplicate recorders by cleaning up any existing instance first
+      if (mediaRecorder) {
+        mediaRecorder.ondataavailable = null;
+        mediaRecorder.onstop = null;
+        if (mediaRecorder.state !== 'inactive') {
+          try {
+            mediaRecorder.stop();
+          } catch (e) {
+            console.warn("Error stopping old recorder:", e);
+          }
+        }
+        mediaRecorder = null;
+      }
 
       recordedChunks = [];
       currentChunkIndex = 0;
 
       try {
-        // Enforce tight low-bitrate settings so long gaps don't cause high footprints on 4GB devices
-        let options = {
-          mimeType: 'video/webm;codecs=vp8',
-          videoBitsPerSecond: 150000
-        };
-        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-          options = {
-            mimeType: 'video/webm',
-            videoBitsPerSecond: 150000
-          };
+        // Part 2: Robust mimetype fallback selector
+        let options = {};
+        if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8')) {
+          options = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 150000 };
+          console.log("Using primary mimetype: video/webm;codecs=vp8");
+        } else if (MediaRecorder.isTypeSupported('video/webm')) {
+          options = { mimeType: 'video/webm', videoBitsPerSecond: 150000 };
+          console.log("Using fallback mimetype: video/webm");
+        } else {
+          options = { videoBitsPerSecond: 150000 };
+          console.log("No webm mimetype supported, using browser defaults");
         }
 
         mediaRecorder = new MediaRecorder(localStream, options);
 
         mediaRecorder.ondataavailable = function (e) {
           if (e.data && e.data.size > 0) {
-            const chunk = e.data;
-            
             if (isUndoing) {
               // Discard any raw data chunks if we are actively resetting after an Undo action
               return;
             }
-
-            const chunkIndex = currentChunkIndex++;
-            recordedChunks.push(chunk);
-
-            const isFinalChunk = isStoppingForBall;
-            isStoppingForBall = false; // Reset flag
-
-            const reader = new FileReader();
-            reader.onloadend = function () {
-              if (conn && conn.open) {
-                conn.send({
-                  type: 'video_proof_fragment',
-                  innings: currentBallMeta.innings,
-                  over: currentBallMeta.over,
-                  ball: currentBallMeta.ball,
-                  chunkIndex: chunkIndex,
-                  arrayBuffer: reader.result,
-                  isFinal: isFinalChunk
-                });
-                console.log(`Sent fragment ${chunkIndex} (final: ${isFinalChunk}) for Over ${currentBallMeta.over} Ball ${currentBallMeta.ball}`);
-              }
-            };
-            reader.readAsArrayBuffer(chunk);
+            recordedChunks.push(e.data);
           }
         };
 
-        // Start recording and slice chunks automatically every 30 seconds
-        mediaRecorder.start(30000);
+        // Part 2: Reduce MediaRecorder timeslice latency to 1000ms
+        mediaRecorder.start(1000);
         updateRecordingUIState(true, "Recording Next Ball...");
+        console.log("MediaRecorder started with 1s timeslice.");
       } catch (e) {
         console.error("MediaRecorder initialize failed:", e);
         showToast("MediaRecorder unsupported in this browser.");
@@ -578,12 +589,65 @@
       }
     }
 
+    // Part 1: Chunked binary sending function
+    async function sendBlobInPieces(blob, meta) {
+      if (!conn || !conn.open) {
+        throw new Error("P2P connection is closed");
+      }
+      const clipId = `${meta.innings}_${meta.over}_${meta.ball}_${Date.now()}`;
+      const pieceSize = 32 * 1024; // 32 KB pieces
+      const buffer = await blob.arrayBuffer();
+      const totalPieces = Math.ceil(buffer.byteLength / pieceSize);
+
+      console.log(`Starting chunked P2P send: ${clipId}. Size: ${buffer.byteLength} bytes, Pieces: ${totalPieces}`);
+
+      conn.send({
+        type: "video_start",
+        clipId,
+        meta,
+        mimeType: blob.type || "video/webm",
+        totalPieces,
+        totalBytes: buffer.byteLength
+      });
+
+      for (let i = 0; i < totalPieces; i++) {
+        const piece = buffer.slice(i * pieceSize, (i + 1) * pieceSize);
+
+        // Backpressure check using bufferedAmount
+        while (
+          conn &&
+          conn.open &&
+          conn.dataChannel &&
+          conn.dataChannel.bufferedAmount > 512 * 1024
+        ) {
+          await new Promise(resolve => setTimeout(resolve, 50));
+        }
+
+        if (!conn || !conn.open) {
+          throw new Error("P2P connection closed during video transfer");
+        }
+
+        conn.send({
+          type: "video_piece",
+          clipId,
+          index: i,
+          buffer: piece
+        });
+      }
+
+      conn.send({
+        type: "video_end",
+        clipId
+      });
+      console.log(`Finished P2P send: ${clipId}`);
+    }
+
     function handleIncomingCommand(data) {
       if (data.action === 'ball_completed') {
         if (!mediaRecorder) return;
 
-        // Save current ball metadata
-        const metadata = {
+        // Part 4: Consistency - capture metadata inside handler immediately
+        const completedBallMeta = {
           innings: data.innings,
           over: data.over,
           ball: data.ball,
@@ -593,31 +657,51 @@
           matchName: data.matchName || "Backyard_Match"
         };
 
-        activeMatchName = metadata.matchName.replace(/\s+/g, '_');
-        document.getElementById('match-meta-subtitle').innerText = `Match: ${metadata.matchName} • Innings: ${metadata.innings}`;
+        activeMatchName = completedBallMeta.matchName.replace(/\s+/g, '_');
+        document.getElementById('match-meta-subtitle').innerText = `Match: ${completedBallMeta.matchName} • Innings: ${completedBallMeta.innings}`;
 
-        // Cut off current recording immediately
-        isStoppingForBall = true;
+        console.log("Ball completed event received. Halting recorder...", completedBallMeta);
 
-        mediaRecorder.onstop = function () {
-          const videoBlob = new Blob(recordedChunks, { type: 'video/webm' });
-          recordedChunks = []; // Clear array elements instantly to free up heap memory
-          isStoppingForBall = false;
+        // Part 2: Stop mediaRecorder only if active
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+          mediaRecorder.onstop = async function () {
+            const videoBlob = new Blob(recordedChunks, { type: mediaRecorder.mimeType || 'video/webm' });
+            recordedChunks = []; // Clear chunks immediately
+            
+            // Restart recording for next ball immediately
+            initMediaRecorder();
 
-          // Restart a brand new recording sequence
+            // P2P chunked send (async)
+            if (conn && conn.open) {
+              document.getElementById('status-action').innerText = "Sending proof clip...";
+              sendBlobInPieces(videoBlob, completedBallMeta)
+                .then(() => {
+                  document.getElementById('status-action').innerText = "Proof clip sent";
+                  showToast("Proof clip sent to Scorer! 🟢");
+                })
+                .catch(err => {
+                  console.error("P2P video send failed:", err);
+                  document.getElementById('status-action').innerText = "Proof send failed";
+                  showToast("Proof send failed! ❌");
+                });
+            } else {
+              document.getElementById('status-action').innerText = "Proof send failed (no peer)";
+            }
+
+            // Archive consolidated full ball clip to Microsoft OneDrive in background
+            queueOneDriveUpload(videoBlob, completedBallMeta);
+          };
+          mediaRecorder.stop();
+          document.getElementById('status-action').innerText = "Assembling video clip...";
+        } else {
+          console.warn("mediaRecorder was not recording when ball completed");
           initMediaRecorder();
-
-          // Archive consolidated full ball clip to Microsoft OneDrive in background
-          queueOneDriveUpload(videoBlob, metadata);
-        };
-
-        mediaRecorder.stop();
-        document.getElementById('status-action').innerText = "Processing & sending final fragment...";
+        }
 
       } else if (data.action === 'undo') {
         showToast("Last ball undone! Discarding buffer.");
         // Reset current media recorder session without yielding a clip
-        if (mediaRecorder && mediaRecorder.state === 'recording') {
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
           isUndoing = true;
           mediaRecorder.onstop = function () {
             recordedChunks = [];
@@ -626,6 +710,10 @@
             document.getElementById('status-action').innerText = "Buffer reset after Undo";
           };
           mediaRecorder.stop();
+        } else {
+          recordedChunks = [];
+          initMediaRecorder();
+          document.getElementById('status-action').innerText = "Buffer reset after Undo";
         }
       } else if (data.action === 'set_active_ball') {
         currentBallMeta.innings = data.innings;
@@ -645,8 +733,12 @@
         localStream = null;
       }
       if (mediaRecorder && mediaRecorder.state !== 'inactive') {
-        mediaRecorder.stop();
+        try {
+          mediaRecorder.stop();
+        } catch (e) {}
       }
+      mediaRecorder = null;
+      recordedChunks = [];
       if (peer) {
         peer.destroy();
         peer = null;
@@ -670,25 +762,80 @@
       panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
     }
 
-    function loadOneDriveSettings() {
-      const savedClientId = localStorage.getItem('onedrive_client_id');
-      const savedTenantId = localStorage.getItem('onedrive_tenant_id') || 'common';
-
-      if (savedClientId) {
-        document.getElementById('ms-client-id').value = savedClientId;
-        document.getElementById('ms-tenant-id').value = savedTenantId;
-
-        initializeMSAL(savedClientId, savedTenantId);
+    // Part 5: Toggle tenant input field visibility based on dropdown select
+    function toggleTenantInput() {
+      const mode = document.getElementById("ms-account-type").value;
+      const container = document.getElementById("ms-tenant-id-container");
+      if (mode === "custom") {
+        container.style.display = "block";
+      } else {
+        container.style.display = "none";
       }
     }
 
-    function initializeMSAL(clientId, tenantId) {
+    // Part 5: Build MSAL authority URL based on selected account type
+    function getAuthorityFromSettings(mode, tenant) {
+      if (!mode) {
+        mode = document.getElementById("ms-account-type").value;
+      }
+      if (tenant === undefined) {
+        const tenantInput = document.getElementById("ms-tenant-id");
+        tenant = tenantInput ? tenantInput.value.trim() : "";
+      }
+
+      if (mode === "consumers") {
+        return "https://login.microsoftonline.com/consumers";
+      }
+      if (mode === "organizations") {
+        return "https://login.microsoftonline.com/organizations";
+      }
+      if (mode === "common") {
+        return "https://login.microsoftonline.com/common";
+      }
+      if (mode === "custom") {
+        if (!tenant) throw new Error("Please enter your tenant ID or tenant domain.");
+        return `https://login.microsoftonline.com/${tenant}`;
+      }
+      return "https://login.microsoftonline.com/common";
+    }
+
+    // Part 6: Path segment sanitization helper
+    function sanitizePathSegment(value) {
+      return String(value || "")
+        .replace(/[<>:"/\\|?*\x00-\x1F]/g, "_")
+        .replace(/\s+/g, "_")
+        .substring(0, 80);
+    }
+
+    function loadOneDriveSettings() {
+      const savedClientId = localStorage.getItem('onedrive_client_id');
+      const savedAccountType = localStorage.getItem('onedrive_account_type') || 'consumers';
+      const savedTenantId = localStorage.getItem('onedrive_tenant_id') || '';
+
+      if (savedClientId) {
+        document.getElementById('ms-client-id').value = savedClientId;
+        document.getElementById('ms-account-type').value = savedAccountType;
+        document.getElementById('ms-tenant-id').value = savedTenantId;
+        toggleTenantInput();
+
+        try {
+          const authority = getAuthorityFromSettings(savedAccountType, savedTenantId);
+          initializeMSAL(savedClientId, authority);
+        } catch (e) {
+          console.error("Failed to load OneDrive authority settings:", e);
+        }
+      }
+    }
+
+    // Part 5: Initialize MSAL with client ID and full authority URL
+    function initializeMSAL(clientId, authority) {
+      console.log("OneDrive Auth Mode Authority:", authority);
       const msalConfig = {
         auth: {
           clientId: clientId,
-          authority: `https://login.microsoftonline.com/${tenantId}`,
+          authority: authority,
           redirectUri: window.location.origin + window.location.pathname,
-          validateAuthority: false // 🌟 CRITICAL: Prevents crash loops when using explicit dev tenant GUIDs on a multitenant Azure app registration
+          validateAuthority: false
         },
         cache: {
           cacheLocation: "localStorage",
@@ -726,31 +873,50 @@
 
     function saveMSConfigAndLogin() {
       const clientId = document.getElementById('ms-client-id').value.trim();
-      const tenantId = document.getElementById('ms-tenant-id').value.trim() || 'common';
+      const accountType = document.getElementById('ms-account-type').value;
+      const tenantId = document.getElementById('ms-tenant-id').value.trim();
 
       if (!clientId) {
         showToast("Please enter Microsoft Application (client) ID");
         return;
       }
 
+      let authority;
+      try {
+        authority = getAuthorityFromSettings(accountType, tenantId);
+      } catch (err) {
+        showToast(err.message);
+        return;
+      }
+
       localStorage.setItem('onedrive_client_id', clientId);
-      localStorage.setItem('onedrive_tenant_id', tenantId);
+      localStorage.setItem('onedrive_account_type', accountType);
+      if (accountType === 'custom') {
+        localStorage.setItem('onedrive_tenant_id', tenantId);
+      } else {
+        localStorage.removeItem('onedrive_tenant_id');
+      }
 
-      initializeMSAL(clientId, tenantId);
+      initializeMSAL(clientId, authority);
 
-      // Trigger login redirect
+      // Part 6: Narrow scope to Files.ReadWrite (not All)
       const loginRequest = {
-        scopes: ["Files.ReadWrite.All", "User.Read"]
+        scopes: ["Files.ReadWrite", "User.Read"]
       };
 
-      msalInstance.loginRedirect(loginRequest);
+      if (msalInstance) {
+        msalInstance.loginRedirect(loginRequest);
+      }
     }
 
     function requestSilentToken(account) {
+      // Part 6: Narrow scopes for silent acquisition
       const tokenRequest = {
         account: account,
-        scopes: ["Files.ReadWrite.All"]
+        scopes: ["Files.ReadWrite"]
       };
+
+      if (!msalInstance) return;
 
       msalInstance.acquireTokenSilent(tokenRequest)
         .then(response => {
@@ -768,13 +934,14 @@
 
     function logoutMicrosoft() {
       localStorage.removeItem('onedrive_client_id');
+      localStorage.removeItem('onedrive_account_type');
       localStorage.removeItem('onedrive_tenant_id');
       localStorage.removeItem('onedrive_access_token');
 
+      updateOneDriveUI(false);
+
       if (msalInstance) {
         msalInstance.logoutRedirect();
-      } else {
-        updateOneDriveUI(false);
       }
     }
 
@@ -797,16 +964,20 @@
        BACKGROUND FILE UPLOAD & FAILURE QUEUE
        ========================================== */
     function queueOneDriveUpload(blob, meta) {
-      // Format dynamic filename
+      // Part 6: Format filename using sanitized segments
       const scoreTag = meta.type === 'wicket' ? 'Wicket' : `${meta.runs}runs`;
       const typeTag = (meta.type !== 'run' && meta.type !== 'wicket') ? `_${meta.type}` : '';
-      const safeMatchName = activeMatchName;
-      const filename = `Over${meta.over}_Ball${meta.ball}_${scoreTag}${typeTag}.webm`;
+      
+      const cleanMatchName = sanitizePathSegment(activeMatchName);
+      const cleanInnings = sanitizePathSegment(meta.innings);
+      
+      const rawFilename = `Over${meta.over}_Ball${meta.ball}_${scoreTag}${typeTag}.webm`;
+      const cleanFilename = sanitizePathSegment(rawFilename);
 
       const uploadTask = {
-        id: `${meta.innings}_${meta.over}_${meta.ball}`,
-        filename: filename,
-        innings: meta.innings,
+        id: `${cleanInnings}_${meta.over}_${meta.ball}`,
+        filename: cleanFilename,
+        innings: cleanInnings,
         over: meta.over,
         ball: meta.ball,
         blob: blob,
@@ -829,11 +1000,7 @@
       if (isUploading || uploadQueue.length === 0) return;
 
       if (!msAccessToken) {
-        // If not logged in, we mark all items in the queue as uploaded (failed status on scorer)
-        // or just let them wait. Since OneDrive is linked, let's wait or notify scorer they are pending
         notifyScorerArchiveStatus(uploadQueue[0], 'uploading');
-
-        // Wait for token
         document.getElementById('status-onedrive').innerText = "Waiting for login token...";
         return;
       }
@@ -844,8 +1011,13 @@
       notifyScorerArchiveStatus(task, 'uploading');
       document.getElementById('status-action').innerText = `Uploading ${task.filename}...`;
 
-      // Upload binary to OneDrive Path-based API (Graph API)
-      const uploadUrl = `https://graph.microsoft.com/v1.0/me/drive/root:/cricket/${activeMatchName}/${task.innings}/${task.filename}:/content`;
+      // Part 6: Upload URL segments encoded properly
+      const cleanMatch = encodeURIComponent(sanitizePathSegment(activeMatchName));
+      const cleanInnings = encodeURIComponent(task.innings);
+      const cleanFilename = encodeURIComponent(task.filename);
+      const uploadUrl = `https://graph.microsoft.com/v1.0/me/drive/root:/cricket/${cleanMatch}/${cleanInnings}/${cleanFilename}:/content`;
+
+      console.log(`Starting OneDrive PUT upload to: ${uploadUrl}`);
 
       fetch(uploadUrl, {
         method: 'PUT',
@@ -857,12 +1029,13 @@
       })
         .then(response => {
           if (!response.ok) {
-            throw new Error(`OneDrive API upload failed with code ${response.status}`);
+            throw new Error(`OneDrive API upload failed with status ${response.status}`);
           }
           return response.json();
         })
         .then(data => {
           showToast(`OneDrive Archived: ${task.filename}`);
+          console.log(`OneDrive upload success: ${task.filename}`);
 
           // Notify Scorer of successful archival status and links
           notifyScorerArchiveStatus(task, 'archived', data.id, data.webUrl);
@@ -901,11 +1074,15 @@
     function processRetryQueue() {
       // Re-trigger queue processing periodically in case network returns
       if (uploadQueue.length > 0) {
-        // Attempt silient token refresh if we have a profile to keep access active
+        // Attempt silent token refresh if we have a profile to keep access active
         if (msalInstance) {
-          const accounts = msalInstance.getAllAccounts();
-          if (accounts.length > 0) {
-            requestSilentToken(accounts[0]);
+          try {
+            const accounts = msalInstance.getAllAccounts();
+            if (accounts.length > 0) {
+              requestSilentToken(accounts[0]);
+            }
+          } catch (e) {
+            console.error("MSAL silent token acquisition in retry loop failed:", e);
           }
         }
         processUploadQueue();
