@@ -1,15 +1,17 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>1v1 Cricket Scorer - Ultimate Cumulative Edition</title>
-  
+
   <!-- Premium CDNs for typography, animations, charting, and celebrations -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/peerjs@1.4.7/dist/peerjs.min.js"></script>
@@ -106,12 +108,22 @@
     }
 
     @keyframes screenFadeIn {
-      from { opacity: 0; transform: translateY(30px) scale(0.96); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
+      from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.96);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
     }
 
     /* Typographic Definitions */
-    h1, h2, h3, .bebas {
+    h1,
+    h2,
+    h3,
+    .bebas {
       font-family: 'Bebas Neue', sans-serif;
       letter-spacing: 1.5px;
     }
@@ -123,7 +135,7 @@
       background: linear-gradient(135deg, #ffffff 30%, var(--gold));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      text-shadow: 0 4px 15px rgba(0,0,0,0.6);
+      text-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
     }
 
     .subtitle {
@@ -313,7 +325,7 @@
       align-items: center;
       justify-content: center;
       border: 5px solid var(--gold);
-      box-shadow: inset 0 0 20px rgba(0,0,0,0.6), 0 0 20px var(--gold-glow);
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.6), 0 0 20px var(--gold-glow);
     }
 
     .coin-front {
@@ -367,13 +379,23 @@
 
     /* 3D Coin Flip Keyframes & Transition Engine */
     @keyframes flipHeads {
-      0% { transform: rotateY(0); }
-      100% { transform: rotateY(1800deg); }
+      0% {
+        transform: rotateY(0);
+      }
+
+      100% {
+        transform: rotateY(1800deg);
+      }
     }
 
     @keyframes flipTails {
-      0% { transform: rotateY(0); }
-      100% { transform: rotateY(1980deg); }
+      0% {
+        transform: rotateY(0);
+      }
+
+      100% {
+        transform: rotateY(1980deg);
+      }
     }
 
     .animate-heads {
@@ -437,7 +459,7 @@
       align-items: center;
       justify-content: center;
       padding: 14px 0;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
       margin-bottom: 14px;
     }
 
@@ -452,7 +474,7 @@
       font-size: 5.6rem;
       line-height: 1;
       color: white;
-      text-shadow: 0 5px 20px rgba(0,0,0,0.65);
+      text-shadow: 0 5px 20px rgba(0, 0, 0, 0.65);
       transition: transform 0.12s cubic-bezier(0.175, 0.885, 0.32, 1.2);
     }
 
@@ -489,8 +511,8 @@
     }
 
     .stat-card {
-      background: rgba(0,0,0,0.3);
-      border: 1px solid rgba(255,255,255,0.03);
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.03);
       border-radius: 16px;
       padding: 10px 14px;
     }
@@ -568,7 +590,7 @@
       font-weight: 800;
       font-size: 0.95rem;
       color: white;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
       animation: ballPop 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
 
@@ -691,7 +713,7 @@
     /* Cumulative vertical Timeline */
     .timeline-container {
       margin-top: 20px;
-      background: rgba(0,0,0,0.25);
+      background: rgba(0, 0, 0, 0.25);
       border-radius: 20px;
       padding: 16px;
       border: 1px solid var(--card-border);
@@ -704,7 +726,7 @@
       margin-bottom: 14px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
       padding-bottom: 6px;
     }
 
@@ -714,7 +736,7 @@
       align-items: center;
       margin-bottom: 12px;
       padding-bottom: 12px;
-      border-bottom: 1px dashed rgba(255,255,255,0.05);
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
     }
 
     .timeline-step:last-child {
@@ -747,7 +769,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0,0,0,0.85);
+      background: rgba(0, 0, 0, 0.85);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       z-index: 10000;
@@ -774,8 +796,15 @@
     }
 
     @keyframes modalScaleUp {
-      from { transform: scale(0.9); opacity: 0; }
-      to { transform: scale(1); opacity: 1; }
+      from {
+        transform: scale(0.9);
+        opacity: 0;
+      }
+
+      to {
+        transform: scale(1);
+        opacity: 1;
+      }
     }
 
     .extras-grid {
@@ -787,7 +816,7 @@
 
     .extra-runs-btn {
       height: 52px;
-      background: rgba(255,255,255,0.06);
+      background: rgba(255, 255, 255, 0.06);
       border: 1px solid var(--card-border);
       color: white;
       font-weight: 700;
@@ -839,7 +868,7 @@
 
     /* Extras Summary Bar */
     .extras-summary {
-      background: rgba(0,0,0,0.18);
+      background: rgba(0, 0, 0, 0.18);
       padding: 8px 12px;
       border-radius: 10px;
       font-size: 0.75rem;
@@ -917,7 +946,7 @@
       margin-bottom: 10px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      border-bottom: 1px solid rgba(255,255,255,0.06);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
       padding-bottom: 4px;
     }
 
@@ -950,48 +979,73 @@
     }
 
     @keyframes pulse {
-      0% { transform: scale(0.95); opacity: 0.5; }
-      50% { transform: scale(1.1); opacity: 1; }
-      100% { transform: scale(0.95); opacity: 0.5; }
+      0% {
+        transform: scale(0.95);
+        opacity: 0.5;
+      }
+
+      50% {
+        transform: scale(1.1);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(0.95);
+        opacity: 0.5;
+      }
     }
+
     .status-pulse {
       animation: pulse 1.5s infinite ease-in-out;
     }
   </style>
 </head>
+
 <body>
 
   <div class="stadium-glow"></div>
 
   <div class="app-container">
-    
+
     <!-- Dynamic Interactive Toast -->
     <div id="toast" class="toast">🏏 Scorer Engine Engaged</div>
 
     <!-- Smart Extras runs Picker Modal dialog -->
     <div id="extras-modal" class="custom-modal-overlay">
       <div class="custom-modal-card">
-        <h3 id="modal-extra-title" class="modal-title" style="font-size:1.8rem; font-family:'Bebas Neue'; color:#93c5fd; margin-bottom:8px;">Wide Ball!</h3>
-        <p class="modal-desc" style="font-size:0.85rem; color:var(--text-muted); margin-bottom:20px;">Did the batting team score extra runs off this ball?</p>
+        <h3 id="modal-extra-title" class="modal-title"
+          style="font-size:1.8rem; font-family:'Bebas Neue'; color:#93c5fd; margin-bottom:8px;">Wide Ball!</h3>
+        <p class="modal-desc" style="font-size:0.85rem; color:var(--text-muted); margin-bottom:20px;">Did the batting
+          team score extra runs off this ball?</p>
         <div class="extras-grid">
-          <button class="extra-runs-btn" onclick="submitExtraBallScore(0)">0 runs<span style="font-size:0.6rem; font-weight:400; opacity:0.75;">+1 extra</span></button>
-          <button class="extra-runs-btn" onclick="submitExtraBallScore(1)">1 run<span style="font-size:0.6rem; font-weight:400; opacity:0.75;">+2 total</span></button>
-          <button class="extra-runs-btn" onclick="submitExtraBallScore(2)">2 runs<span style="font-size:0.6rem; font-weight:400; opacity:0.75;">+3 total</span></button>
-          <button class="extra-runs-btn" onclick="submitExtraBallScore(3)">3 runs<span style="font-size:0.6rem; font-weight:400; opacity:0.75;">+4 total</span></button>
-          <button class="extra-runs-btn" onclick="submitExtraBallScore(4)">4 runs<span style="font-size:0.6rem; font-weight:400; opacity:0.75;">+5 total</span></button>
-          <button class="extra-runs-btn" onclick="submitExtraBallScore(6)">6 runs<span style="font-size:0.6rem; font-weight:400; opacity:0.75;">+7 total</span></button>
+          <button class="extra-runs-btn" onclick="submitExtraBallScore(0)">0 runs<span
+              style="font-size:0.6rem; font-weight:400; opacity:0.75;">+1 extra</span></button>
+          <button class="extra-runs-btn" onclick="submitExtraBallScore(1)">1 run<span
+              style="font-size:0.6rem; font-weight:400; opacity:0.75;">+2 total</span></button>
+          <button class="extra-runs-btn" onclick="submitExtraBallScore(2)">2 runs<span
+              style="font-size:0.6rem; font-weight:400; opacity:0.75;">+3 total</span></button>
+          <button class="extra-runs-btn" onclick="submitExtraBallScore(3)">3 runs<span
+              style="font-size:0.6rem; font-weight:400; opacity:0.75;">+4 total</span></button>
+          <button class="extra-runs-btn" onclick="submitExtraBallScore(4)">4 runs<span
+              style="font-size:0.6rem; font-weight:400; opacity:0.75;">+5 total</span></button>
+          <button class="extra-runs-btn" onclick="submitExtraBallScore(6)">6 runs<span
+              style="font-size:0.6rem; font-weight:400; opacity:0.75;">+7 total</span></button>
         </div>
-        <button class="btn btn-secondary" style="height: 44px; font-size: 0.9rem; margin-top:12px;" onclick="closeExtrasModal()">Cancel</button>
+        <button class="btn btn-secondary" style="height: 44px; font-size: 0.9rem; margin-top:12px;"
+          onclick="closeExtrasModal()">Cancel</button>
       </div>
     </div>
 
     <!-- Custom Tactile Confirmation Reset Modal -->
     <div id="reset-confirm-modal" class="custom-modal-overlay">
       <div class="custom-modal-card" style="border-color:var(--danger-red);">
-        <h3 style="font-size:1.8rem; font-family:'Bebas Neue'; color:var(--danger-red); margin-bottom:8px;">Reset Match?</h3>
-        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:20px;">This will completely wipe your current progress and data. Are you absolutely sure?</p>
+        <h3 style="font-size:1.8rem; font-family:'Bebas Neue'; color:var(--danger-red); margin-bottom:8px;">Reset Match?
+        </h3>
+        <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:20px;">This will completely wipe your
+          current progress and data. Are you absolutely sure?</p>
         <div style="display:flex; gap:12px;">
-          <button class="btn btn-secondary" style="flex:1; height:48px;" onclick="closeResetConfirmModal()">Cancel</button>
+          <button class="btn btn-secondary" style="flex:1; height:48px;"
+            onclick="closeResetConfirmModal()">Cancel</button>
           <button class="btn btn-danger" style="flex:1; height:48px;" onclick="executeConfirmedReset()">Reset</button>
         </div>
       </div>
@@ -1002,7 +1056,8 @@
          ========================================== -->
     <div id="screen-intro" class="screen active">
       <div style="text-align: center; margin: 16px 0 8px 0;">
-        <span style="font-size: 3.5rem; display: block; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); animation: bounce 1.8s infinite alternate;">🏏</span>
+        <span
+          style="font-size: 3.5rem; display: block; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4)); animation: bounce 1.8s infinite alternate;">🏏</span>
       </div>
       <h1>Backyard Scorer</h1>
       <p class="subtitle">1v1 Backyard Cricket Match Companion</p>
@@ -1011,8 +1066,10 @@
       <div id="resume-banner" class="resume-banner-box">
         <p class="resume-text">⚠️ Match in progress detected from your previous session!</p>
         <div style="display: flex; gap: 8px;">
-          <button class="btn btn-secondary" style="height: 38px; font-size:0.75rem;" onclick="discardSavedState()">Discard</button>
-          <button class="btn btn-gold" style="height: 38px; font-size:0.75rem;" onclick="resumeSavedState()">Resume Match</button>
+          <button class="btn btn-secondary" style="height: 38px; font-size:0.75rem;"
+            onclick="discardSavedState()">Discard</button>
+          <button class="btn btn-gold" style="height: 38px; font-size:0.75rem;" onclick="resumeSavedState()">Resume
+            Match</button>
         </div>
       </div>
 
@@ -1072,21 +1129,30 @@
       <h1>Camera Proof Pairing</h1>
       <p class="subtitle">Connect recording phone via QR code</p>
 
-      <div style="display: flex; flex-direction: column; align-items: center; gap: 18px; margin-bottom: 24px; width: 100%;">
-        <div style="background: white; padding: 12px; border-radius: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; width: 224px; height: 224px;">
+      <div
+        style="display: flex; flex-direction: column; align-items: center; gap: 18px; margin-bottom: 24px; width: 100%;">
+        <div
+          style="background: white; padding: 12px; border-radius: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; width: 224px; height: 224px;">
           <canvas id="pairing-qr-canvas" style="display: block; width: 200px; height: 200px;"></canvas>
         </div>
-        
-        <div id="pairing-status-card" style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px; text-align: center; transition: all 0.3s ease;">
-          <span style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; display: block; margin-bottom: 6px;">P2P Connection Status</span>
-          <span id="pairing-status-text" style="font-size: 1.1rem; font-weight: 700; color: var(--gold); display: flex; align-items: center; justify-content: center; gap: 8px;">
-            <span class="status-pulse" style="width:10px; height:10px; border-radius:50%; background:var(--gold); display:inline-block;"></span> Waiting for Camera...
+
+        <div id="pairing-status-card"
+          style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--card-border); border-radius: 16px; padding: 14px; text-align: center; transition: all 0.3s ease;">
+          <span
+            style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.8px; display: block; margin-bottom: 6px;">P2P
+            Connection Status</span>
+          <span id="pairing-status-text"
+            style="font-size: 1.1rem; font-weight: 700; color: var(--gold); display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <span class="status-pulse"
+              style="width:10px; height:10px; border-radius:50%; background:var(--gold); display:inline-block;"></span>
+            Waiting for Camera...
           </span>
         </div>
       </div>
 
       <div style="display: flex; flex-direction: column; gap: 12px; width: 100%;">
-        <button id="btn-proceed-toss" class="btn btn-gold" style="display: none;" onclick="startTossFromPairing()">Proceed to Toss</button>
+        <button id="btn-proceed-toss" class="btn btn-gold" style="display: none;"
+          onclick="startTossFromPairing()">Proceed to Toss</button>
         <button class="btn btn-secondary" onclick="disableCameraAndProceed()">No Camera for This Match</button>
       </div>
     </div>
@@ -1126,7 +1192,8 @@
 
       <!-- Fully functional and verified "Bat First" / "Bowl First" buttons as pictured in image_13e00c.png -->
       <div id="toss-decision-box" style="display: none; text-align: center; margin-top: 10px;">
-        <p style="font-size: 1rem; font-weight: 700; color: var(--gold); margin-bottom: 12px;" id="toss-won-msg">Toss Winner!</p>
+        <p style="font-size: 1rem; font-weight: 700; color: var(--gold); margin-bottom: 12px;" id="toss-won-msg">Toss
+          Winner!</p>
         <div style="display: flex; gap: 10px;">
           <button class="btn btn-primary" onclick="selectInningsChoice('bat')">Bat First</button>
           <button class="btn btn-primary" onclick="selectInningsChoice('bowl')">Bowl First</button>
@@ -1143,7 +1210,8 @@
       <div class="scoring-header" style="flex-wrap: wrap; gap: 8px;">
         <div id="batting-team-display" class="batting-team-title">Papa Batting</div>
         <div style="display: flex; gap: 6px; align-items: center;">
-          <span id="connection-status-indicator" class="innings-info-label" style="background: rgba(255, 77, 77, 0.15); color: var(--danger-red); border: 1px solid rgba(255, 77, 77, 0.3); display: none;">Disconnected</span>
+          <span id="connection-status-indicator" class="innings-info-label"
+            style="background: rgba(255, 77, 77, 0.15); color: var(--danger-red); border: 1px solid rgba(255, 77, 77, 0.3); display: none;">Disconnected</span>
           <div id="innings-display-label" class="innings-info-label">1st Innings</div>
         </div>
       </div>
@@ -1156,7 +1224,7 @@
           <span id="live-wickets" class="score-wickets">0</span>
         </div>
         <div id="live-overs" class="score-overs-label">Overs: 0.0 / 5</div>
-        
+
         <div id="live-target-box" class="target-box">
           Target runs set
         </div>
@@ -1201,21 +1269,38 @@
 
       <!-- Tactical Mobile Entry Numpad -->
       <div class="numpad">
-        <button class="numpad-btn numpad-btn-num" onclick="addBallScore(0, 'run', true)">0<span class="btn-sub-label">Dot</span></button>
-        <button class="numpad-btn numpad-btn-num" onclick="addBallScore(1, 'run', true)">1<span class="btn-sub-label">Single</span></button>
-        <button class="numpad-btn numpad-btn-num" onclick="addBallScore(2, 'run', true)">2<span class="btn-sub-label">Double</span></button>
-        
-        <button class="numpad-btn numpad-btn-num" onclick="addBallScore(3, 'run', true)">3<span class="btn-sub-label">Triple</span></button>
-        <button class="numpad-btn numpad-btn-four" onclick="addBallScore(4, 'run', true)">4<span class="btn-sub-label">Boundary</span></button>
-        <button class="numpad-btn numpad-btn-six" onclick="addBallScore(6, 'run', true)">6<span class="btn-sub-label">Sixer</span></button>
-        
-        <button class="numpad-btn numpad-btn-extra" onclick="openExtrasModal('wide')">Wd<span class="btn-sub-label">Wide</span></button>
-        <button class="numpad-btn numpad-btn-extra" onclick="openExtrasModal('noball')">NB<span class="btn-sub-label">No-Ball</span></button>
-        <button class="numpad-btn numpad-btn-wicket" onclick="addBallScore(0, 'wicket', true)">W<span class="btn-sub-label">Wicket</span></button>
+        <button class="numpad-btn numpad-btn-num" onclick="addBallScore(0, 'run', true)">0<span
+            class="btn-sub-label">Dot</span></button>
+        <button class="numpad-btn numpad-btn-num" onclick="addBallScore(1, 'run', true)">1<span
+            class="btn-sub-label">Single</span></button>
+        <button class="numpad-btn numpad-btn-num" onclick="addBallScore(2, 'run', true)">2<span
+            class="btn-sub-label">Double</span></button>
+
+        <button class="numpad-btn numpad-btn-num" onclick="addBallScore(3, 'run', true)">3<span
+            class="btn-sub-label">Triple</span></button>
+        <button class="numpad-btn numpad-btn-four" onclick="addBallScore(4, 'run', true)">4<span
+            class="btn-sub-label">Boundary</span></button>
+        <button class="numpad-btn numpad-btn-six" onclick="addBallScore(6, 'run', true)">6<span
+            class="btn-sub-label">Sixer</span></button>
+
+        <button class="numpad-btn numpad-btn-extra" onclick="openExtrasModal('wide')">Wd<span
+            class="btn-sub-label">Wide</span></button>
+        <button class="numpad-btn numpad-btn-extra" onclick="openExtrasModal('noball')">NB<span
+            class="btn-sub-label">No-Ball</span></button>
+        <button class="numpad-btn numpad-btn-wicket" onclick="addBallScore(0, 'wicket', true)">W<span
+            class="btn-sub-label">Wicket</span></button>
       </div>
 
-      <button id="btn-recheck-last" class="btn btn-gold" style="width: 100%; margin-top: 4px; margin-bottom: 12px; display: none; align-items: center; justify-content: center; gap: 8px; height: 50px; font-size: 0.95rem;" onclick="recheckLastBall()">
+      <button id="btn-recheck-last" class="btn btn-gold"
+        style="width: 100%; margin-top: 4px; margin-bottom: 12px; display: none; align-items: center; justify-content: center; gap: 8px; height: 50px; font-size: 0.95rem;"
+        onclick="recheckLastBall()">
         🔍 Recheck Last Ball
+      </button>
+
+      <button id="btn-start-recording" class="btn btn-primary"
+        style="width: 100%; margin-top: 4px; margin-bottom: 12px; display: none; align-items: center; justify-content: center; gap: 8px; height: 50px; font-size: 0.95rem;"
+        onclick="triggerStartRecording()">
+        🔴 Start Recording This Ball
       </button>
 
       <div style="display: flex; gap: 10px; margin-top: 4px;">
@@ -1225,6 +1310,16 @@
         <button class="btn btn-danger" style="flex: 1;" onclick="confirmResetMatch()">
           ⚠️ Reset
         </button>
+      </div>
+
+      <!-- Ball Proofs Gallery -->
+      <div id="proof-gallery-container"
+        style="margin-top: 20px; background: rgba(0, 0, 0, 0.25); border-radius: 20px; padding: 16px; border: 1px solid var(--card-border); display: none;">
+        <div class="timeline-title" style="margin-bottom: 10px;">🎥 Ball Proofs Gallery</div>
+        <div id="proof-gallery-list"
+          style="display: flex; flex-direction: column; gap: 10px; max-height: 200px; overflow-y: auto; padding-right: 4px;">
+          <!-- Items will be populated dynamically -->
+        </div>
       </div>
     </div>
 
@@ -1236,9 +1331,12 @@
       <p class="subtitle">Summary statistics of 1st Innings</p>
 
       <div class="break-reveal-card">
-        <p id="first-innings-team-completed" style="font-weight: 600; font-size: 1rem; text-transform: uppercase; color: var(--text-muted);">TEAM A INNINGS</p>
+        <p id="first-innings-team-completed"
+          style="font-weight: 600; font-size: 1rem; text-transform: uppercase; color: var(--text-muted);">TEAM A INNINGS
+        </p>
         <div id="first-innings-total" class="break-score-accent">45 / 3</div>
-        <p id="first-innings-overs" style="font-size: 0.9rem; color: var(--text-muted); margin-top: -6px; margin-bottom: 16px;">in 5.0 Overs</p>
+        <p id="first-innings-overs"
+          style="font-size: 0.9rem; color: var(--text-muted); margin-top: -6px; margin-bottom: 16px;">in 5.0 Overs</p>
 
         <p id="break-chase-target" class="chase-target-text">Team B needs 46 runs to win</p>
         <p id="break-chase-balls" style="font-size: 0.85rem; color: var(--text-muted);">Required run rate: 9.2 RPO</p>
@@ -1269,7 +1367,8 @@
 
       <!-- Actions -->
       <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 18px; margin-bottom: 24px;">
-        <button id="btn-super-over-action" class="btn btn-gold" style="display: none;" onclick="triggerSuperOverMatchSetup()">
+        <button id="btn-super-over-action" class="btn btn-gold" style="display: none;"
+          onclick="triggerSuperOverMatchSetup()">
           ⚡ Start Super Over!
         </button>
         <button class="btn btn-primary" onclick="initiateNewMatchSameTeams()">
@@ -1281,7 +1380,8 @@
       </div>
 
       <!-- Advanced Stat Performance Charts -->
-      <h2 style="font-size: 1.35rem; margin-bottom: 12px; border-bottom: 2px solid var(--cricket-green); padding-bottom: 4px;">
+      <h2
+        style="font-size: 1.35rem; margin-bottom: 12px; border-bottom: 2px solid var(--cricket-green); padding-bottom: 4px;">
         📊 Analytics & Progress
       </h2>
 
@@ -1323,18 +1423,32 @@
     <!-- Smart Recheck Video Modal -->
     <div id="recheck-modal" class="custom-modal-overlay">
       <div class="custom-modal-card" style="max-width: 420px; border-color: var(--gold);">
-        <h3 class="modal-title" style="font-size:1.8rem; font-family:'Bebas Neue'; color:var(--gold); margin-bottom:4px;">Ball Proof Review</h3>
-        <p id="recheck-metadata" style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px; text-transform:uppercase; font-weight:600; letter-spacing:0.5px;"></p>
-        
-        <div style="background:#000; border-radius:14px; overflow:hidden; margin-bottom:16px; border:1px solid rgba(255,255,255,0.08); position:relative; padding-bottom:75%; height:0; width:100%;">
-          <video id="recheck-video-player" controls playsinline style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain;"></video>
+        <h3 class="modal-title"
+          style="font-size:1.8rem; font-family:'Bebas Neue'; color:var(--gold); margin-bottom:4px;">Ball Proof Review
+        </h3>
+        <p id="recheck-metadata"
+          style="font-size:0.8rem; color:var(--text-muted); margin-bottom:14px; text-transform:uppercase; font-weight:600; letter-spacing:0.5px;">
+        </p>
+
+        <div
+          style="background:#000; border-radius:14px; overflow:hidden; margin-bottom:16px; border:1px solid rgba(255,255,255,0.08); position:relative; padding-bottom:75%; height:0; width:100%;">
+          <video id="recheck-video-player" controls playsinline
+            style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain;"></video>
+          <div id="recheck-video-placeholder"
+            style="position:absolute; top:0; left:0; width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; color:var(--text-muted); font-size:0.85rem; padding: 20px; text-align: center; display:none;">
+            <span>📹 Local video proof not received.</span>
+            <span id="placeholder-onedrive-hint" style="font-size:0.75rem; margin-top:6px; color:var(--gold);">Please
+              watch archived video on OneDrive.</span>
+          </div>
         </div>
 
-        <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:18px; padding: 8px 12px; border-radius: 10px; background: rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%;">
+        <div
+          style="font-size:0.75rem; color:var(--text-muted); margin-bottom:18px; padding: 8px 12px; border-radius: 10px; background: rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%;">
           OneDrive: <span id="recheck-archive-link" style="color:var(--text-muted);">None</span>
         </div>
 
-        <button class="btn btn-secondary" style="height: 48px; font-size: 0.95rem; width:100%;" onclick="closeRecheckModal()">Close Review</button>
+        <button class="btn btn-secondary" style="height: 48px; font-size: 0.95rem; width:100%;"
+          onclick="closeRecheckModal()">Close Review</button>
       </div>
     </div>
 
@@ -1344,6 +1458,16 @@
        SOUND, HAPTICS & ENGINE SCRIPT
        ========================================== */ -->
   <script>
+    /* ==========================================
+       STATE SERIALIZATION REPLACER FOR AUTOSAVE & UNDO
+       ========================================== */
+    function stateReplacer(key, value) {
+      if (key === 'blob' || key === 'objectUrl') {
+        return null;
+      }
+      return value;
+    }
+
     /* ==========================================
        SYNTHESIZED OFFLINE CRICKET AUDIO GENERATOR
        ========================================== */
@@ -1365,7 +1489,7 @@
         try {
           this.init();
           const now = this.ctx.currentTime;
-          
+
           if (type === 'click') {
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
@@ -1378,42 +1502,42 @@
             gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
             osc.start(now);
             osc.stop(now + 0.08);
-          } 
+          }
           else if (type === 'boundary') {
             const osc1 = this.ctx.createOscillator();
             const osc2 = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
-            
+
             osc1.connect(gain);
             osc2.connect(gain);
             gain.connect(this.ctx.destination);
-            
+
             osc1.frequency.setValueAtTime(523.25, now); // C5
             osc1.frequency.setValueAtTime(659.25, now + 0.08); // E5
             osc1.frequency.setValueAtTime(783.99, now + 0.16); // G5
-            
+
             osc2.frequency.setValueAtTime(1046.50, now); // C6
-            
+
             gain.gain.setValueAtTime(0.15, now);
             gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-            
+
             osc1.start(now);
             osc2.start(now);
             osc1.stop(now + 0.4);
             osc2.stop(now + 0.4);
-          } 
+          }
           else if (type === 'wicket') {
             const osc = this.ctx.createOscillator();
             const gain = this.ctx.createGain();
             osc.connect(gain);
             gain.connect(this.ctx.destination);
-            
+
             osc.frequency.setValueAtTime(300, now);
             osc.frequency.linearRampToValueAtTime(100, now + 0.6);
-            
+
             gain.gain.setValueAtTime(0.25, now);
             gain.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
-            
+
             osc.start(now);
             osc.stop(now + 0.6);
           }
@@ -1422,14 +1546,14 @@
             const gain = this.ctx.createGain();
             osc.connect(gain);
             gain.connect(this.ctx.destination);
-            
+
             osc.type = 'triangle';
             osc.frequency.setValueAtTime(1200, now);
             osc.frequency.exponentialRampToValueAtTime(300, now + 2.5);
-            
+
             gain.gain.setValueAtTime(0.08, now);
             gain.gain.exponentialRampToValueAtTime(0.001, now + 2.5);
-            
+
             osc.start(now);
             osc.stop(now + 2.5);
           }
@@ -1441,12 +1565,12 @@
               const gain = this.ctx.createGain();
               osc.connect(gain);
               gain.connect(this.ctx.destination);
-              
+
               osc.type = 'sine';
               osc.frequency.setValueAtTime(freq, now + (idx * 0.12));
               gain.gain.setValueAtTime(0.12, now + (idx * 0.12));
               gain.gain.exponentialRampToValueAtTime(0.001, now + (idx * 0.12) + 0.5);
-              
+
               osc.start(now + (idx * 0.12));
               osc.stop(now + (idx * 0.12) + 0.5);
             });
@@ -1491,11 +1615,11 @@
       tossWinner: "",
       tossChoice: "",
       // History of completed phases (each chapter tracks phaseName, team, balls, and runs/wickets)
-      chapters: [], 
+      chapters: [],
       innings: [
         {
           team: "",
-          balls: [], 
+          balls: [],
           totalRuns: 0,
           wickets: 0,
           wides: 0,
@@ -1539,7 +1663,7 @@
         localStorage.setItem('cricket_backyard_autosave_v2', JSON.stringify({
           match,
           stateHistory
-        }));
+        }, stateReplacer));
       } catch (e) {
         console.warn("Auto save write failed.", e);
       }
@@ -1557,6 +1681,19 @@
     }
 
     function clearAllObjectUrls() {
+      if (typeof proofMediaCache !== 'undefined') {
+        for (const [key, cached] of proofMediaCache.entries()) {
+          if (cached.objectUrl) {
+            try {
+              URL.revokeObjectURL(cached.objectUrl);
+            } catch (e) {
+              console.warn("Failed to revoke cached URL:", e);
+            }
+          }
+        }
+        proofMediaCache.clear();
+      }
+
       if (!match || !match.innings) return;
       match.innings.forEach(inn => {
         if (inn.balls) {
@@ -1565,9 +1702,7 @@
               if (ball.proof.objectUrl) {
                 try {
                   URL.revokeObjectURL(ball.proof.objectUrl);
-                } catch (e) {
-                  console.warn("Failed to revoke object URL:", e);
-                }
+                } catch (e) { }
                 ball.proof.objectUrl = null;
               }
               ball.proof.blob = null;
@@ -1586,11 +1721,11 @@
           const parsed = JSON.parse(saved);
           match = parsed.match;
           stateHistory = parsed.stateHistory;
-          
+
           audio.init();
           triggerHaptic();
           showToast("Match Resumed Successfully! 🏏");
-          
+
           updateLiveScoringUI();
           goToScreen('scoring');
         }
@@ -1693,7 +1828,7 @@
     function proceedToTossScreen() {
       document.getElementById('toss-caller-prompt').innerText = `${match.teamA} to Call the Toss`;
       document.getElementById('toss-decision-box').style.display = 'none';
-      
+
       const coin = document.getElementById('toss-coin');
       coin.className = 'coin';
 
@@ -1706,21 +1841,21 @@
 
     function initScorerPeer() {
       if (peer) return; // Already setup
-      
+
       const statusText = document.getElementById('pairing-status-text');
       const statusCard = document.getElementById('pairing-status-card');
       const canvas = document.getElementById('pairing-qr-canvas');
       const proceedBtn = document.getElementById('btn-proceed-toss');
-      
+
       try {
         if (typeof Peer === 'undefined') {
           throw new Error("PeerJS not loaded");
         }
-        
+
         statusText.innerHTML = `<span class="status-pulse" style="width:10px; height:10px; border-radius:50%; background:var(--gold); display:inline-block; margin-right:8px;"></span> Initializing P2P...`;
-        
+
         peer = new Peer();
-        
+
         peer.on('open', (id) => {
           new QRious({
             element: canvas,
@@ -1730,21 +1865,21 @@
             foreground: '#071f13',
             level: 'H'
           });
-          
+
           statusCard.style.borderColor = 'var(--card-border)';
           statusText.innerHTML = `<span class="status-pulse" style="width:10px; height:10px; border-radius:50%; background:var(--gold); display:inline-block; margin-right:8px;"></span> Waiting for Camera...`;
           statusText.style.color = 'var(--gold)';
           proceedBtn.style.display = 'none';
-          
+
           updateConnectionIndicator('waiting');
           showToast("QR code pairing ready!");
         });
-        
+
         peer.on('connection', (incomingConn) => {
           conn = incomingConn;
           setupConnection();
         });
-        
+
         peer.on('error', (err) => {
           console.error("PeerJS error:", err);
           statusText.innerHTML = `<span style="color:var(--danger-red)">⚠️ Connection Error</span>`;
@@ -1762,27 +1897,28 @@
       const statusText = document.getElementById('pairing-status-text');
       const statusCard = document.getElementById('pairing-status-card');
       const proceedBtn = document.getElementById('btn-proceed-toss');
-      
+
       statusCard.style.borderColor = 'var(--cricket-green)';
       statusText.innerHTML = `🟢 Connected to Camera!`;
       statusText.style.color = 'var(--cricket-green)';
-      
+
       proceedBtn.style.display = 'inline-flex';
-      
+
       showToast("Camera Paired! 🎥");
       audio.play('fanfare');
       triggerHaptic('boundary');
-      
+
       updateConnectionIndicator('connected');
-      
+
       conn.on('data', (data) => {
         handleIncomingData(data);
       });
-      
+
       conn.on('close', () => {
         showToast("Camera disconnected!");
         updateConnectionIndicator('disconnected');
-        
+        markPendingBallsAsFailed("Camera disconnected");
+
         if (currentActiveScreen === 'pairing') {
           statusCard.style.borderColor = 'var(--card-border)';
           statusText.innerHTML = `<span class="status-pulse" style="width:10px; height:10px; border-radius:50%; background:var(--gold); display:inline-block; margin-right:8px;"></span> Waiting for Camera...`;
@@ -1790,15 +1926,76 @@
           proceedBtn.style.display = 'none';
         }
       });
-      
+
       conn.on('error', (err) => {
         console.error("Connection error:", err);
         showToast("Connection error!");
+        markPendingBallsAsFailed("Connection error");
       });
     }
 
-    // Part 3: Top-level in-memory Map for incoming clips
+    // Part 3 & 9: Top-level in-memory Cache for proof URLs and incoming clips
+    const proofMediaCache = new Map();
     const incomingClips = new Map();
+    let isRecordingActiveBall = false;
+
+    function restoreProofMediaFromCache() {
+      if (!match) return;
+
+      const restoreForBalls = (balls, inningsStr) => {
+        if (!balls) return;
+        balls.forEach((ball, ballIdx) => {
+          const meta = getBallMetadata(balls, ballIdx);
+          const cacheKey = `${inningsStr}_${meta.over}_${meta.ballInOver}`;
+          const cached = proofMediaCache.get(cacheKey);
+          if (cached) {
+            ball.proof.blob = cached.blob;
+            ball.proof.objectUrl = cached.objectUrl;
+          }
+        });
+      };
+
+      if (match.innings) {
+        match.innings.forEach((inn, innIdx) => {
+          const inningsStr = innIdx === 0 ? "Innings1" : (match.superOverActive ? "SuperOver" : "Innings2");
+          restoreForBalls(inn.balls, inningsStr);
+        });
+      }
+
+      if (match.chapters) {
+        match.chapters.forEach(ch => {
+          let inningsStr = "Innings1";
+          if (ch.phaseName.includes("Super Over") && ch.phaseName.includes("Innings 2")) {
+            inningsStr = "SuperOver";
+          } else if (ch.phaseName.includes("Innings 2")) {
+            inningsStr = "Innings2";
+          }
+          restoreForBalls(ch.balls, inningsStr);
+        });
+      }
+    }
+
+    function markPendingBallsAsFailed(reason) {
+      if (!match) return;
+
+      const markBalls = (balls) => {
+        if (!balls) return;
+        balls.forEach(ball => {
+          if (ball.proof) {
+            const status = ball.proof.status;
+            if (status === 'recording' || status === 'sealing' || status === 'sending' || status === 'pending') {
+              ball.proof.status = 'failed';
+              ball.proof.failureReason = reason;
+            }
+          }
+        });
+      };
+
+      if (match.innings) {
+        match.innings.forEach(inn => markBalls(inn.balls));
+      }
+      updateLiveScoringUI();
+    }
 
     function attachProofToBall(meta, blob, objectUrl) {
       const innIdx = meta.innings === "Innings1" ? 0 : 1;
@@ -1810,7 +2007,12 @@
         ballObj.proof.blob = blob;
         ballObj.proof.objectUrl = objectUrl;
         ballObj.proof.status = 'ready';
+
+        // Cache media in memory to preserve reference during undo/save states
+        const cacheKey = `${meta.innings}_${meta.over}_${meta.ball}`;
+        proofMediaCache.set(cacheKey, { blob, objectUrl });
         console.log("Local proof ready");
+
         updateLiveScoringUI();
         console.log(`Proof clip attached to ball for Over ${meta.over} Ball ${meta.ball}.`);
       } else {
@@ -1818,7 +2020,7 @@
       }
     }
 
-    function markProofStatusFailed(meta) {
+    function markProofStatusFailed(meta, reason = "Transfer failed") {
       const innIdx = meta.innings === "Innings1" ? 0 : 1;
       const inn = match.innings[innIdx];
       if (!inn) return;
@@ -1827,22 +2029,57 @@
       if (ballObj) {
         if (!ballObj.proof.objectUrl) {
           ballObj.proof.status = 'failed';
+          ballObj.proof.failureReason = reason;
           updateLiveScoringUI();
         }
       }
     }
 
-    // Part 3: Timeout cleanup every 30 seconds for clips older than 2 minutes (prevent leaks)
+    // Part 4: Timeout cleanup every 5 seconds, progress-aware (no fail if pieces are coming)
     setInterval(() => {
       const now = Date.now();
       for (const [clipId, clip] of incomingClips.entries()) {
-        if (now - clip.startedAt > 120000) {
-          console.warn(`P2P Video receiving timeout for clip: ${clipId}. Marking failed.`);
-          markProofStatusFailed(clip.meta);
+        let complete = true;
+        for (let i = 0; i < clip.totalPieces; i++) {
+          if (!clip.pieces[i]) {
+            complete = false;
+            break;
+          }
+        }
+
+        if (complete) {
+          const blob = new Blob(clip.pieces, { type: clip.mimeType || 'video/webm' });
+          const objectUrl = URL.createObjectURL(blob);
+          attachProofToBall(clip.meta, blob, objectUrl);
           incomingClips.delete(clipId);
+          continue;
+        }
+
+        // Wait 10s after end received before failing due to missing pieces
+        if (clip.waitingForLatePieces && now - clip.endReceivedAt > 10000) {
+          console.warn(`P2P Video timed out waiting 10s for late pieces: ${clipId}`);
+          markProofStatusFailed(clip.meta, "Missing video pieces");
+          incomingClips.delete(clipId);
+          continue;
+        }
+
+        // Fail only if no pieces arrive for 5 minutes (300,000 ms)
+        if (now - clip.lastPieceAt > 300000) {
+          console.warn(`P2P Video timed out: no pieces received for 5 minutes: ${clipId}`);
+          markProofStatusFailed(clip.meta, "Transfer timed out (no data for 5m)");
+          incomingClips.delete(clipId);
+          continue;
+        }
+
+        // Absolute maximum lifetime of 20 minutes (1,200,000 ms)
+        if (now - clip.startedAt > 1200000) {
+          console.warn(`P2P Video timed out: absolute maximum lifetime of 20 minutes reached: ${clipId}`);
+          markProofStatusFailed(clip.meta, "Absolute transfer timeout (20m)");
+          incomingClips.delete(clipId);
+          continue;
         }
       }
-    }, 30000);
+    }, 5000);
 
     function handleIncomingData(data) {
       if (data.type === 'video_start') {
@@ -1854,7 +2091,9 @@
           pieces: new Array(data.totalPieces),
           receivedPieces: 0,
           receivedBytes: 0,
-          startedAt: Date.now()
+          startedAt: Date.now(),
+          lastPieceAt: Date.now(),
+          waitingForLatePieces: false
         });
         console.log(`P2P clip start: ${data.clipId}, expected pieces: ${data.totalPieces}`);
 
@@ -1875,6 +2114,7 @@
             clip.pieces[data.index] = data.buffer;
             clip.receivedPieces++;
             clip.receivedBytes += data.buffer.byteLength;
+            clip.lastPieceAt = Date.now();
           }
         }
       } else if (data.type === 'video_end') {
@@ -1889,31 +2129,46 @@
           }
 
           if (!complete) {
-            console.warn(`P2P Video incomplete pieces for: ${data.clipId}. (Got ${clip.receivedPieces}/${clip.totalPieces})`);
-            markProofStatusFailed(clip.meta);
+            console.warn(`P2P Video incomplete pieces for: ${data.clipId}. Waiting 10s for late pieces.`);
+            clip.waitingForLatePieces = true;
+            clip.endReceivedAt = Date.now();
           } else {
             const blob = new Blob(clip.pieces, { type: clip.mimeType || 'video/webm' });
             const objectUrl = URL.createObjectURL(blob);
             console.log(`P2P clip assembled successfully: ${data.clipId}, size: ${blob.size} bytes`);
             attachProofToBall(clip.meta, blob, objectUrl);
+            incomingClips.delete(data.clipId);
           }
-          incomingClips.delete(data.clipId);
         }
       } else if (data.type === 'archive_status') {
         const inn = match.innings[data.innings === "Innings1" ? 0 : 1];
         if (!inn) return;
-        
+
         const ball = findBallObject(inn.balls, data.over, data.ball);
         if (ball) {
           ball.proof.archiveStatus = data.status;
           ball.proof.oneDriveId = data.oneDriveId || null;
           ball.proof.oneDriveUrl = data.oneDriveUrl || null;
           console.log("Archive status updated separately");
-          
+
           if (activeRecheckBall === ball) {
             updateRecheckModalArchiveUI(ball);
           }
           updateLiveScoringUI();
+        }
+      } else if (data.type === 'proof_status') {
+        const innIdx = data.innings === "Innings1" ? 0 : 1;
+        const inn = match.innings[innIdx];
+        if (inn) {
+          const ballObj = findBallObject(inn.balls, data.over, data.ball);
+          if (ballObj) {
+            ballObj.proof.status = data.status;
+            if (data.reason) {
+              ballObj.proof.failureReason = data.reason;
+            }
+            console.log(`Proof status updated for Over ${data.over} Ball ${data.ball}: ${data.status} (${data.reason || 'None'})`);
+            updateLiveScoringUI();
+          }
         }
       }
     }
@@ -1964,13 +2219,14 @@
       }
       conn = null;
       updateConnectionIndicator('disabled');
+      markPendingBallsAsFailed("Camera disabled");
       proceedToTossScreen();
     }
 
     function updateConnectionIndicator(status) {
       const ind = document.getElementById('connection-status-indicator');
       if (!ind) return;
-      
+
       if (!isCameraEnabled || status === 'disabled') {
         ind.style.display = 'none';
       } else {
@@ -1996,19 +2252,38 @@
 
     function openRecheckModalForBall(ball, globalIndex) {
       activeRecheckBall = ball;
-      
+
       const meta = getBallMetadata(match.innings[match.currentInnings].balls, globalIndex);
       const scoreText = ball.type === 'wicket' ? 'Wicket' : `${ball.runs} runs ${ball.type !== 'run' ? `(${ball.type})` : ''}`;
-      
+
       document.getElementById('recheck-metadata').innerText = `Over ${meta.over} Ball ${meta.ballInOver} • Result: ${scoreText}`;
-      
+
       const player = document.getElementById('recheck-video-player');
-      player.src = ball.proof.objectUrl;
-      player.load();
-      player.play().catch(e => console.log("Auto play prevented", e));
-      
+      const placeholder = document.getElementById('recheck-video-placeholder');
+
+      if (ball.proof.objectUrl) {
+        player.style.display = 'block';
+        if (placeholder) placeholder.style.display = 'none';
+        player.src = ball.proof.objectUrl;
+        player.load();
+        player.play().catch(e => console.log("Auto play prevented", e));
+      } else {
+        player.style.display = 'none';
+        if (placeholder) placeholder.style.display = 'flex';
+        player.src = "";
+
+        const hint = document.getElementById('placeholder-onedrive-hint');
+        if (hint) {
+          if (ball.proof.oneDriveUrl) {
+            hint.innerHTML = `<a href="${ball.proof.oneDriveUrl}" target="_blank" style="color:var(--gold); text-decoration:underline; font-weight:600;">Click here to watch archived video on OneDrive</a>`;
+          } else {
+            hint.innerText = "No archive fallback available.";
+          }
+        }
+      }
+
       updateRecheckModalArchiveUI(ball);
-      
+
       document.getElementById('recheck-modal').classList.add('active');
     }
 
@@ -2040,7 +2315,10 @@
       const player = document.getElementById('recheck-video-player');
       player.pause();
       player.src = "";
-      
+      const placeholder = document.getElementById('recheck-video-placeholder');
+      if (placeholder) placeholder.style.display = 'none';
+      player.style.display = 'block';
+
       activeRecheckBall = null;
       document.getElementById('recheck-modal').classList.remove('active');
       updateLiveScoringUI();
@@ -2136,6 +2414,7 @@
        ========================================== */
     function initializeScoringScreenState() {
       clearAllObjectUrls();
+      isRecordingActiveBall = false;
       if (!match.superOverActive) {
         match.currentInnings = 0;
         match.target = null;
@@ -2179,7 +2458,7 @@
         superOverActive: match.superOverActive,
         superOverCount: match.superOverCount,
         chapters: match.chapters
-      });
+      }, stateReplacer);
       stateHistory.push(copy);
     }
 
@@ -2200,6 +2479,9 @@
       match.superOverCount = snapshot.superOverCount;
       match.chapters = snapshot.chapters;
 
+      // Restore URL and blob caches from memory
+      restoreProofMediaFromCache();
+
       // Notify paired camera device to reset its recording state
       if (isCameraEnabled && conn && conn.open) {
         conn.send({
@@ -2219,7 +2501,7 @@
       tempExtraType = type;
       const title = document.getElementById('modal-extra-title');
       title.innerText = type === 'wide' ? 'Wide Ball!' : 'No-Ball!';
-      
+
       document.getElementById('extras-modal').classList.add('active');
     }
 
@@ -2233,18 +2515,48 @@
       addBallScore(totalRunsConceded, tempExtraType, false);
     }
 
+    function triggerStartRecording() {
+      if (isCameraEnabled && conn && conn.open) {
+        const inn = match.innings[match.currentInnings];
+        const nextMeta = getBallMetadata(inn.balls, inn.balls.length);
+        const inningsStr = match.currentInnings === 0 ? "Innings1" : (match.superOverActive ? "SuperOver" : "Innings2");
+
+        conn.send({
+          action: 'start_recording',
+          innings: inningsStr,
+          over: nextMeta.over,
+          ball: nextMeta.ballInOver,
+          matchName: match.matchName
+        });
+
+        isRecordingActiveBall = true;
+        updateLiveScoringUI();
+        showToast("Recording started on camera device! 🔴");
+      }
+    }
+
     function addBallScore(runs, type, isLegal) {
+      if (isCameraEnabled && conn && conn.open && !isRecordingActiveBall) {
+        const proceed = confirm("Recording was not started for this ball. Do you want to score anyway without video proof?");
+        if (!proceed) {
+          return;
+        }
+      }
+
       saveStateForUndo();
 
       const inn = match.innings[match.currentInnings];
+      const isFailedRecording = isCameraEnabled && conn && conn.open && !isRecordingActiveBall;
+
       const newBall = {
         runs: runs,
         type: type,
         isLegal: isLegal,
         timestamp: Date.now(),
         proof: {
-          status: "pending",
+          status: isFailedRecording ? "failed" : (isCameraEnabled && conn && conn.open ? "recording" : "not_started"),
           archiveStatus: null,
+          failureReason: isFailedRecording ? "Recording was not started" : null,
           blob: null,
           objectUrl: null,
           oneDriveId: null,
@@ -2261,8 +2573,8 @@
       const globalIdx = inn.balls.length - 1;
       const meta = getBallMetadata(inn.balls, globalIdx);
 
-      // Send event to paired camera device to immediately halt recording and deliver the final slice
-      if (isCameraEnabled && conn && conn.open) {
+      // Send event to paired camera device to deliver the completed clip
+      if (isCameraEnabled && conn && conn.open && isRecordingActiveBall) {
         conn.send({
           action: 'ball_completed',
           innings: inningsStr,
@@ -2274,6 +2586,8 @@
           matchName: match.matchName
         });
       }
+
+      isRecordingActiveBall = false; // Reset recording flag for next ball
 
       // Live Audio & Vibration animations
       const runsLabel = document.getElementById('live-runs');
@@ -2288,7 +2602,7 @@
           triggerHaptic('boundary');
           try {
             confetti({ particleCount: 20, spread: 40, origin: { y: 0.8 } });
-          } catch (e) {}
+          } catch (e) { }
         } else {
           audio.play('click');
           triggerHaptic();
@@ -2347,7 +2661,7 @@
        ========================================== */
     function calculateRealtimePlayerStats() {
       const inn = match.innings[match.currentInnings];
-      
+
       // Calculate active batsman statistics (runs scored in this inning since last wicket)
       let activeBatterRuns = 0;
       let activeBatterBalls = 0;
@@ -2382,7 +2696,7 @@
       const legalBalls = getLegalBallsCount(inn.balls);
       const bowlerOvers = formatOvers(legalBalls);
       const economy = legalBalls > 0 ? ((inn.totalRuns / legalBalls) * 6).toFixed(1) : "0.0";
-      
+
       let dotBalls = inn.balls.filter(b => b.runs === 0 && b.type === 'run').length;
 
       document.getElementById('live-bowler-stats').innerText = `${bowlerOvers} - 0 - ${inn.totalRuns} - ${inn.wickets}`;
@@ -2390,11 +2704,38 @@
     }
 
     function updateLiveScoringUI() {
+      if (currentActiveScreen !== 'scoring') return;
+
+      restoreProofMediaFromCache();
+
       const idx = match.currentInnings;
       const inn = match.innings[idx];
 
+      // Update start recording button
+      const recBtn = document.getElementById('btn-start-recording');
+      if (isCameraEnabled && conn && conn.open) {
+        recBtn.style.display = 'inline-flex';
+        if (isRecordingActiveBall) {
+          recBtn.innerHTML = '📹 Recording Active...';
+          recBtn.disabled = true;
+          recBtn.style.background = 'rgba(255,255,255,0.06)';
+          recBtn.style.border = '1px solid var(--card-border)';
+          recBtn.style.color = 'var(--text-muted)';
+          recBtn.style.boxShadow = 'none';
+        } else {
+          recBtn.innerHTML = '🔴 Start Recording This Ball';
+          recBtn.disabled = false;
+          recBtn.style.background = 'linear-gradient(135deg, var(--danger-red), #cc0000)';
+          recBtn.style.border = 'none';
+          recBtn.style.color = 'white';
+          recBtn.style.boxShadow = '0 6px 20px var(--danger-glow)';
+        }
+      } else {
+        recBtn.style.display = 'none';
+      }
+
       document.getElementById('batting-team-display').innerText = `${inn.team} Batting`;
-      
+
       let modeText = "1st Innings";
       if (match.superOverActive) {
         modeText = `Super Over #${match.superOverCount} Inning ${idx + 1}`;
@@ -2455,19 +2796,19 @@
       if (isCameraEnabled && inn.balls.length > 0) {
         const lastBall = inn.balls[inn.balls.length - 1];
         if (lastBall.proof) {
-          if (lastBall.proof.objectUrl) {
+          if (lastBall.proof.objectUrl || lastBall.proof.oneDriveUrl) {
             recheckBtn.style.display = 'inline-flex';
             recheckBtn.innerHTML = '🔍 Recheck Last Ball';
             recheckBtn.disabled = false;
             recheckBtn.style.opacity = '1';
-          } else if (lastBall.proof.status === "pending") {
+          } else if (lastBall.proof.status === "pending" || lastBall.proof.status === "sending" || lastBall.proof.status === "sealing" || lastBall.proof.status === "recording") {
             recheckBtn.style.display = 'inline-flex';
-            recheckBtn.innerHTML = '⏳ Proof receiving...';
+            recheckBtn.innerHTML = `⏳ Proof ${lastBall.proof.status}...`;
             recheckBtn.disabled = true;
             recheckBtn.style.opacity = '0.6';
           } else if (lastBall.proof.status === "failed") {
             recheckBtn.style.display = 'inline-flex';
-            recheckBtn.innerHTML = '❌ Proof unavailable';
+            recheckBtn.innerHTML = `❌ Proof failed: ${lastBall.proof.failureReason || 'Unavailable'}`;
             recheckBtn.disabled = true;
             recheckBtn.style.opacity = '0.6';
           } else {
@@ -2489,7 +2830,10 @@
         undoBtn.disabled = false;
         undoBtn.style.opacity = '1';
       }
+
+      renderProofGallery();
     }
+
 
     function renderOverBallCircles(balls) {
       const container = document.getElementById('live-balls-container');
@@ -2548,7 +2892,7 @@
         if (ball.proof && ball.proof.objectUrl) {
           ballDiv.style.cursor = 'pointer';
           ballDiv.style.border = '2px solid var(--gold)';
-          
+
           const camIcon = document.createElement('span');
           camIcon.innerText = '📹';
           camIcon.style.position = 'absolute';
@@ -2556,7 +2900,7 @@
           camIcon.style.right = '-4px';
           camIcon.style.fontSize = '0.65rem';
           ballDiv.appendChild(camIcon);
-          
+
           ballDiv.onclick = () => openRecheckModalForBall(ball, globalIndex);
         }
 
@@ -2642,7 +2986,7 @@
       match.chapters.push({
         phaseName: phaseName,
         team: inn.team,
-        balls: JSON.parse(JSON.stringify(inn.balls)),
+        balls: JSON.parse(JSON.stringify(inn.balls, stateReplacer)),
         totalRuns: inn.totalRuns,
         wickets: inn.wickets,
         wides: inn.wides,
@@ -2670,7 +3014,7 @@
     function startSecondInnings() {
       match.currentInnings = 1;
       stateHistory = [];
-      
+
       if (match.superOverActive) {
         document.getElementById('scoring-badge').classList.add('active');
       }
@@ -2720,7 +3064,7 @@
       match.chapters.forEach(ch => {
         const step = document.createElement('div');
         step.className = "timeline-step";
-        
+
         const legalBalls = getLegalBallsCount(ch.balls);
         step.innerHTML = `
           <div>
@@ -2742,19 +3086,19 @@
       summaryCard.style.borderRadius = "16px";
       summaryCard.style.background = "rgba(255,215,0,0.06)";
       summaryCard.style.border = "1px solid var(--gold)";
-      
+
       summaryCard.innerHTML = `
         <div style="font-size:0.8rem; font-weight:700; color:var(--gold); text-transform:uppercase; margin-bottom:8px; text-align:center;">🏆 Combined Match Grand Totals 🏆</div>
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <div>
             <div style="font-size:0.85rem; font-weight:700; color:white;">${match.teamA}</div>
             <div style="font-size:1.3rem; font-family:'Bebas Neue'; color:var(--gold);">${cumA.totalRuns} / ${cumA.wickets}</div>
-            <div style="font-size:0.7rem; color:var(--text-muted);">Balls faced: ${cumA.balls.filter(b=>b.isLegal).length} | Extras: ${cumA.extraRuns}</div>
+            <div style="font-size:0.7rem; color:var(--text-muted);">Balls faced: ${cumA.balls.filter(b => b.isLegal).length} | Extras: ${cumA.extraRuns}</div>
           </div>
           <div style="text-align:right;">
             <div style="font-size:0.85rem; font-weight:700; color:white;">${match.teamB}</div>
             <div style="font-size:1.3rem; font-family:'Bebas Neue'; color:var(--gold);">${cumB.totalRuns} / ${cumB.wickets}</div>
-            <div style="font-size:0.7rem; color:var(--text-muted);">Balls faced: ${cumB.balls.filter(b=>b.isLegal).length} | Extras: ${cumB.extraRuns}</div>
+            <div style="font-size:0.7rem; color:var(--text-muted);">Balls faced: ${cumB.balls.filter(b => b.isLegal).length} | Extras: ${cumB.extraRuns}</div>
           </div>
         </div>
       `;
@@ -2770,7 +3114,7 @@
         return Math.random() * (max - min) + min;
       }
 
-      const interval = setInterval(function() {
+      const interval = setInterval(function () {
         const timeLeft = animationEnd - Date.now();
 
         if (timeLeft <= 0) {
@@ -2840,7 +3184,7 @@
     function triggerSuperOverMatchSetup() {
       match.superOverActive = true;
       match.superOverCount++;
-      
+
       const tA = match.innings[1].team;
       const tB = match.innings[0].team;
 
@@ -2856,7 +3200,7 @@
       match.superOverActive = false;
       match.superOverCount = 0;
       document.getElementById('scoring-badge').classList.remove('active');
-      
+
       const temp = match.teamA;
       match.teamA = match.teamB;
       match.teamB = temp;
@@ -2921,7 +3265,7 @@
       const p1 = getProgData(cumA);
       const p2 = getProgData(cumB);
       const labelsLength = Math.max(p1.length, p2.length);
-      const labels = Array.from({length: labelsLength}, (_, i) => i === 0 ? "Start" : `Ball ${i}`);
+      const labels = Array.from({ length: labelsLength }, (_, i) => i === 0 ? "Start" : `Ball ${i}`);
 
       const configColor = { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#9ca3af', font: { family: 'Poppins', size: 9 } } };
 
@@ -3028,7 +3372,7 @@
       };
 
       const maxOvs = match.superOverActive ? 1 : match.maxOvers;
-      const overLabels = Array.from({length: maxOvs}, (_, i) => `Over ${i+1}`);
+      const overLabels = Array.from({ length: maxOvs }, (_, i) => `Over ${i + 1}`);
 
       activeCharts.wickets = new Chart(document.getElementById('chart-wickets').getContext('2d'), {
         type: 'bar',
@@ -3048,10 +3392,114 @@
       });
     }
 
+    // Part 8: Render the proofs gallery listing all balls with local play and OneDrive options
+    function renderProofGallery() {
+      const container = document.getElementById('proof-gallery-container');
+      const listElement = document.getElementById('proof-gallery-list');
+      if (!listElement) return;
+
+      if (!isCameraEnabled) {
+        if (container) container.style.display = 'none';
+        return;
+      }
+
+      if (container) container.style.display = 'block';
+      listElement.innerHTML = "";
+
+      const inn = match.innings[match.currentInnings];
+      if (!inn || !inn.balls || inn.balls.length === 0) {
+        listElement.innerHTML = `<div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; padding: 10px;">No balls scored yet.</div>`;
+        return;
+      }
+
+      inn.balls.forEach((ball, idx) => {
+        const meta = getBallMetadata(inn.balls, idx);
+        const scoreText = ball.type === 'wicket' ? 'Wicket' : `${ball.runs} run${ball.runs !== 1 ? 's' : ''} ${ball.type !== 'run' ? `(${ball.type})` : ''}`;
+
+        const item = document.createElement('div');
+        item.style.display = 'flex';
+        item.style.justifyContent = 'space-between';
+        item.style.alignItems = 'center';
+        item.style.padding = '8px 12px';
+        item.style.background = 'rgba(255, 255, 255, 0.02)';
+        item.style.border = '1px solid rgba(255, 255, 255, 0.05)';
+        item.style.borderRadius = '12px';
+        item.style.fontSize = '0.8rem';
+        item.style.marginBottom = '6px';
+
+        const infoDiv = document.createElement('div');
+        infoDiv.innerHTML = `<b style="color: white;">O${meta.over} B${meta.ballInOver}</b> - ${scoreText}`;
+        item.appendChild(infoDiv);
+
+        const statusDiv = document.createElement('div');
+        statusDiv.style.fontSize = '0.75rem';
+        statusDiv.style.display = 'flex';
+        statusDiv.style.alignItems = 'center';
+        statusDiv.style.gap = '6px';
+
+        let statusHtml = "";
+        if (ball.proof.objectUrl) {
+          statusHtml = `<span style="color: var(--cricket-green);">🟢 Local Ready</span>`;
+        } else if (ball.proof.status === "pending" || ball.proof.status === "sending" || ball.proof.status === "sealing") {
+          statusHtml = `<span style="color: var(--gold);" class="status-pulse">⏳ ${ball.proof.status}...</span>`;
+        } else if (ball.proof.status === "recording") {
+          statusHtml = `<span style="color: var(--danger-red);" class="status-pulse">🔴 recording...</span>`;
+        } else if (ball.proof.status === "failed") {
+          const reason = ball.proof.failureReason ? `: ${ball.proof.failureReason}` : "";
+          statusHtml = `<span style="color: var(--danger-red);" title="${ball.proof.failureReason || 'Failed'}">❌ failed${reason}</span>`;
+        } else {
+          statusHtml = `<span style="color: var(--text-muted);">Idle</span>`;
+        }
+        statusDiv.innerHTML = statusHtml;
+        item.appendChild(statusDiv);
+
+        const actionsDiv = document.createElement('div');
+        actionsDiv.style.display = 'flex';
+        actionsDiv.style.gap = '8px';
+
+        if (ball.proof.objectUrl) {
+          const viewBtn = document.createElement('button');
+          viewBtn.className = 'btn-gold';
+          viewBtn.innerText = 'View';
+          viewBtn.style.padding = '2px 8px';
+          viewBtn.style.height = '24px';
+          viewBtn.style.fontSize = '0.7rem';
+          viewBtn.style.borderRadius = '6px';
+          viewBtn.style.border = 'none';
+          viewBtn.style.cursor = 'pointer';
+          viewBtn.onclick = () => openRecheckModalForBall(ball, idx);
+          actionsDiv.appendChild(viewBtn);
+        }
+
+        if (ball.proof.oneDriveUrl) {
+          const odLink = document.createElement('a');
+          odLink.href = ball.proof.oneDriveUrl;
+          odLink.target = '_blank';
+          odLink.innerText = 'OneDrive ↗';
+          odLink.style.color = '#030a06';
+          odLink.style.background = 'var(--gold)';
+          odLink.style.padding = '2px 8px';
+          odLink.style.height = '24px';
+          odLink.style.fontSize = '0.7rem';
+          odLink.style.borderRadius = '6px';
+          odLink.style.textDecoration = 'none';
+          odLink.style.fontWeight = '600';
+          odLink.style.display = 'inline-flex';
+          odLink.style.alignItems = 'center';
+          odLink.style.boxShadow = '0 2px 5px var(--gold-glow)';
+          actionsDiv.appendChild(odLink);
+        }
+
+        item.appendChild(actionsDiv);
+        listElement.appendChild(item);
+      });
+    }
+
     // Initial check on load
-    window.onload = function() {
+    window.onload = function () {
       checkSavedMatch();
     };
   </script>
 </body>
+
 </html>
