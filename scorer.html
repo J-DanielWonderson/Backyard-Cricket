@@ -1773,20 +1773,86 @@
       });
     }
 
+    function arrayBufferToBase64(buffer) {
+      const bytes = new Uint8Array(buffer);
+      let binary = '';
+      for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return btoa(binary);
+    }
+
+    function base64ToArrayBuffer(base64) {
+      const binaryString = atob(base64);
+      const len = binaryString.length;
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      return bytes.buffer;
+    }
+
+    function reassembleVideoProof(innings, over, ballNum) {
+      const innIdx = innings === "Innings1" ? 0 : 1;
+      const inn = match.innings[innIdx];
+      if (!inn) return;
+      
+      const ballObj = findBallObject(inn.balls, over, ballNum);
+      if (!ballObj) return;
+
+      const prefix = `fragment_${innings}_${over}_${ballNum}_`;
+      const fragments = [];
+      const keysToRemove = [];
+
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i);
+        if (key && key.startsWith(prefix)) {
+          const chunkIndex = parseInt(key.substring(prefix.length));
+          const base64Data = sessionStorage.getItem(key);
+          fragments.push({ chunkIndex, base64Data });
+          keysToRemove.push(key);
+        }
+      }
+
+      if (fragments.length === 0) return;
+
+      // Sort sequentially by chunkIndex metadata
+      fragments.sort((a, b) => a.chunkIndex - b.chunkIndex);
+
+      // Reassemble sequentially using array mapping
+      const sortedFragmentBlobsArray = fragments.map(f => {
+        const arrayBuf = base64ToArrayBuffer(f.base64Data);
+        return new Blob([arrayBuf], { type: 'video/webm' });
+      });
+
+      const reassembledBlob = new Blob(sortedFragmentBlobsArray, { type: 'video/webm' });
+      
+      ballObj.proof.blob = reassembledBlob;
+      ballObj.proof.objectUrl = URL.createObjectURL(reassembledBlob);
+      ballObj.proof.status = 'ready';
+
+      // Wipe raw fragments from local storage
+      keysToRemove.forEach(k => sessionStorage.removeItem(k));
+      
+      console.log(`Reassembled video proof for ${innings}_Over${over}_Ball${ballNum} with ${fragments.length} chunks.`);
+      
+      updateLiveScoringUI();
+    }
+
     function handleIncomingData(data) {
-      if (data.type === 'video_proof_fast') {
+      if (data.type === 'video_proof_fragment') {
         const inn = match.innings[data.innings === "Innings1" ? 0 : 1];
         if (!inn) return;
         
-        const ball = findBallObject(inn.balls, data.over, data.ball);
-        if (ball) {
-          const videoBlob = new Blob([data.arrayBuffer], { type: 'video/webm' });
-          ball.proof.blob = videoBlob;
-          ball.proof.objectUrl = URL.createObjectURL(videoBlob);
-          ball.proof.status = 'ready';
-          
-          showToast(`Proof ready: Over ${data.over} Ball ${data.ball} 📹`);
-          updateLiveScoringUI();
+        // Uniquely structured key with chunkIndex
+        const trackingKey = `fragment_${data.innings}_${data.over}_${data.ball}_${data.chunkIndex}`;
+        const base64Data = arrayBufferToBase64(data.arrayBuffer);
+        
+        sessionStorage.setItem(trackingKey, base64Data);
+        console.log(`Fragment ${data.chunkIndex} received for ${data.innings}_Over${data.over}_Ball${data.ball}`);
+
+        if (data.isFinal) {
+          reassembleVideoProof(data.innings, data.over, data.ball);
         }
       } else if (data.type === 'archive_status') {
         const inn = match.innings[data.innings === "Innings1" ? 0 : 1];
@@ -2152,13 +2218,15 @@
       // Recalculate
       recalculateInningsData(match.currentInnings);
 
-      // Send event to paired camera device
+      const inningsStr = match.currentInnings === 0 ? "Innings1" : (match.superOverActive ? "SuperOver" : "Innings2");
+      const globalIdx = inn.balls.length - 1;
+      const meta = getBallMetadata(inn.balls, globalIdx);
+
+      // Send event to paired camera device to immediately halt recording and deliver the final slice
       if (isCameraEnabled && conn && conn.open) {
-        const globalIdx = inn.balls.length - 1;
-        const meta = getBallMetadata(inn.balls, globalIdx);
         conn.send({
           action: 'ball_completed',
-          innings: match.currentInnings === 0 ? "Innings1" : (match.superOverActive ? "SuperOver" : "Innings2"),
+          innings: inningsStr,
           over: meta.over,
           ball: meta.ballInOver,
           runs: runs,
@@ -2167,6 +2235,9 @@
           matchName: match.matchName
         });
       }
+
+      // Compile current fragments in storage (will fully merge when final fragment is received via handleIncomingData)
+      reassembleVideoProof(inningsStr, meta.over, meta.ballInOver);
 
       // Live Audio & Vibration animations
       const runsLabel = document.getElementById('live-runs');
@@ -2298,6 +2369,18 @@
 
       // Update P2P Connection indicator
       updateConnectionIndicator(conn && conn.open ? 'connected' : (peer ? 'waiting' : 'disabled'));
+
+      // Send active ball info to camera so it tags fragments with correct innings/over/ball metadata
+      if (isCameraEnabled && conn && conn.open) {
+        const nextMeta = getBallMetadata(inn.balls, inn.balls.length);
+        conn.send({
+          action: 'set_active_ball',
+          innings: match.currentInnings === 0 ? "Innings1" : (match.superOverActive ? "SuperOver" : "Innings2"),
+          over: nextMeta.over,
+          ball: nextMeta.ballInOver,
+          matchName: match.matchName
+        });
+      }
 
       // Score Metrics
       document.getElementById('live-runs').innerText = inn.totalRuns;
