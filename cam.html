@@ -1,14 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Cricket Proof System - Camera Phone</title>
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght=300;400;500;600;700;800&display=swap" rel="stylesheet">
-  
+  <link
+    href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght=300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
   <script src="https://cdn.jsdelivr.net/npm/peerjs@1.4.7/dist/peerjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
   <script src="https://alcdn.msauth.net/browser/2.32.2/js/msal-browser.min.js"></script>
@@ -83,8 +86,15 @@
     }
 
     @keyframes screenFadeIn {
-      from { opacity: 0; transform: translateY(20px) scale(0.97); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.97);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
     }
 
     h1 {
@@ -95,7 +105,7 @@
       background: linear-gradient(135deg, #ffffff 30%, var(--gold));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      text-shadow: 0 4px 15px rgba(0,0,0,0.6);
+      text-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
     }
 
     .subtitle {
@@ -158,7 +168,7 @@
       overflow: hidden;
       position: relative;
       margin-bottom: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
     }
 
     #preview-video {
@@ -196,8 +206,13 @@
     }
 
     @keyframes flash {
-      from { opacity: 0.3; }
-      to { opacity: 1; }
+      from {
+        opacity: 0.3;
+      }
+
+      to {
+        opacity: 1;
+      }
     }
 
     /* Form Fields */
@@ -251,10 +266,11 @@
     }
   </style>
 </head>
+
 <body>
 
   <div class="app-container">
-    
+
     <div id="toast" class="toast">Camera Initialised</div>
 
     <div id="screen-pairing" class="screen active">
@@ -269,7 +285,8 @@
       </div>
 
       <div style="text-align: center; margin-bottom: 16px;">
-        <p style="font-size: 0.85rem; color: var(--text-muted);">Point camera at the QR code displayed on the scorer phone screen.</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Point camera at the QR code displayed on the scorer
+          phone screen.</p>
       </div>
 
       <button class="btn btn-secondary" onclick="window.location.href='index.html'">Back to RolesSelector</button>
@@ -278,10 +295,13 @@
     <div id="screen-camera" class="screen">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
         <h1 style="font-size: 2rem; text-align: left;">Live Proof Feed</h1>
-        <span id="p2p-status-badge" class="viewport-overlay" style="position:static; margin:0; background:rgba(0,179,85,0.15); color:var(--cricket-green); border:1px solid rgba(0,179,85,0.3);">🟢 Linked</span>
+        <span id="p2p-status-badge" class="viewport-overlay"
+          style="position:static; margin:0; background:rgba(0,179,85,0.15); color:var(--cricket-green); border:1px solid rgba(0,179,85,0.3);">🟢
+          Linked</span>
       </div>
-      
-      <p class="subtitle" style="text-align: left; margin-bottom: 12px;" id="match-meta-subtitle">Match: Preparing...</p>
+
+      <p class="subtitle" style="text-align: left; margin-bottom: 12px;" id="match-meta-subtitle">Match: Preparing...
+      </p>
 
       <div class="viewport-container">
         <video id="preview-video" autoplay muted playsinline></video>
@@ -290,7 +310,8 @@
         </div>
       </div>
 
-      <div style="background: rgba(0,0,0,0.35); border: 1px solid var(--card-border); border-radius: 16px; padding: 12px; margin-bottom: 16px; font-size: 0.8rem; display: flex; flex-direction: column; gap: 8px;">
+      <div
+        style="background: rgba(0,0,0,0.35); border: 1px solid var(--card-border); border-radius: 16px; padding: 12px; margin-bottom: 16px; font-size: 0.8rem; display: flex; flex-direction: column; gap: 8px;">
         <div style="display:flex; justify-content:space-between;">
           <span style="color:var(--text-muted);">Current Action:</span>
           <b id="status-action" style="color:white;">Initializing Stream...</b>
@@ -306,25 +327,32 @@
       </div>
 
       <div style="display:flex; gap:10px; margin-bottom:12px;">
-        <button id="btn-toggle-onedrive" class="btn btn-secondary" style="flex:1; height:44px; font-size:0.85rem;" onclick="toggleOneDrivePanel()">OneDrive Settings</button>
-        <button class="btn btn-danger" style="flex:1; height:44px; font-size:0.85rem;" onclick="disconnectFromScorer()">Unpair Phone</button>
+        <button id="btn-toggle-onedrive" class="btn btn-secondary" style="flex:1; height:44px; font-size:0.85rem;"
+          onclick="toggleOneDrivePanel()">OneDrive Settings</button>
+        <button class="btn btn-danger" style="flex:1; height:44px; font-size:0.85rem;"
+          onclick="disconnectFromScorer()">Unpair Phone</button>
       </div>
 
-      <div id="onedrive-config-panel" style="display: none; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 14px; margin-top: 4px;">
-        <h3 style="font-family:'Bebas Neue'; color:var(--gold); font-size:1.4rem; margin-bottom:10px;">OneDrive Integration Config</h3>
-        
+      <div id="onedrive-config-panel"
+        style="display: none; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 14px; margin-top: 4px;">
+        <h3 style="font-family:'Bebas Neue'; color:var(--gold); font-size:1.4rem; margin-bottom:10px;">OneDrive
+          Integration Config</h3>
+
         <div class="input-group">
           <label class="input-label" for="ms-client-id">Application (client) ID</label>
           <input type="text" id="ms-client-id" class="input-field" placeholder="Paste Client ID from Azure AD Portal">
         </div>
         <div class="input-group">
           <label class="input-label" for="ms-tenant-id">Directory (tenant) ID</label>
-          <input type="text" id="ms-tenant-id" class="input-field" placeholder="e.g. common or your Developer Tenant GUID" value="common">
+          <input type="text" id="ms-tenant-id" class="input-field"
+            placeholder="e.g. common or your Developer Tenant GUID" value="common">
         </div>
-        
+
         <div style="display:flex; gap:10px; margin-top:14px;">
-          <button class="btn btn-primary" style="height:40px; font-size:0.8rem;" onclick="saveMSConfigAndLogin()">Link Microsoft Account</button>
-          <button class="btn btn-secondary" style="height:40px; font-size:0.8rem; display:none;" id="btn-ms-logout" onclick="logoutMicrosoft()">Logout</button>
+          <button class="btn btn-primary" style="height:40px; font-size:0.8rem;" onclick="saveMSConfigAndLogin()">Link
+            Microsoft Account</button>
+          <button class="btn btn-secondary" style="height:40px; font-size:0.8rem; display:none;" id="btn-ms-logout"
+            onclick="logoutMicrosoft()">Logout</button>
         </div>
       </div>
     </div>
@@ -340,13 +368,22 @@
     let localStream = null;
     let mediaRecorder = null;
     let recordedChunks = [];
-    
+
     // Microsoft OneDrive configuration variables
     let msalInstance = null;
     let msAccessToken = null;
     let uploadQueue = [];
     let isUploading = false;
     let activeMatchName = "Backyard_Match";
+
+    let currentChunkIndex = 0;
+    let isStoppingForBall = false;
+    let isUndoing = false;
+    let currentBallMeta = {
+      innings: "Innings1",
+      over: 1,
+      ball: 1
+    };
 
     function showToast(msg, duration = 3000) {
       const toast = document.getElementById('toast');
@@ -357,8 +394,8 @@
 
     // Initialize HTML5 QR Scanner
     let html5QrScanner = null;
-    
-    window.onload = function() {
+
+    window.onload = function () {
       // 1. Initialise scan UI
       startQRScanner();
       // 2. Pre-fill OneDrive client credentials if they were previously entered
@@ -369,7 +406,7 @@
 
     function startQRScanner() {
       if (html5QrScanner) return;
-      
+
       html5QrScanner = new Html5Qrcode("qr-reader");
       html5QrScanner.start(
         { facingMode: "environment" },
@@ -393,12 +430,12 @@
     function connectToScorer(scorerPeerId) {
       // Create local PeerJS instance
       peer = new Peer();
-      
+
       peer.on('open', (id) => {
         const connection = peer.connect(scorerPeerId, {
           serialization: "json"
         });
-        
+
         connection.on('open', () => {
           conn = connection;
           setupP2PConnection();
@@ -414,13 +451,13 @@
 
     function setupP2PConnection() {
       showToast("Connected to Scorer! 🟢");
-      
+
       // Navigate screens
       document.getElementById('screen-pairing').classList.remove('active');
       document.getElementById('screen-camera').classList.add('active');
-      
+
       document.getElementById('status-action').innerText = "Acquiring rear camera feed...";
-      
+
       // Bind connection listener
       conn.on('data', (data) => {
         handleIncomingCommand(data);
@@ -451,9 +488,9 @@
           localStream = stream;
           const videoElement = document.getElementById('preview-video');
           videoElement.srcObject = stream;
-          
+
           document.getElementById('status-action').innerText = "Standby (Ready for Ball)";
-          
+
           // Initialise recorder loop
           initMediaRecorder();
         })
@@ -466,31 +503,61 @@
 
     function initMediaRecorder() {
       if (!localStream) return;
-      
+
       recordedChunks = [];
+      currentChunkIndex = 0;
+
       try {
         // Enforce tight low-bitrate settings so long gaps don't cause high footprints on 4GB devices
-        let options = { 
+        let options = {
           mimeType: 'video/webm;codecs=vp8',
-          videoBitsPerSecond: 180000
+          videoBitsPerSecond: 150000
         };
         if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-          options = { 
+          options = {
             mimeType: 'video/webm',
-            videoBitsPerSecond: 180000
+            videoBitsPerSecond: 150000
           };
         }
-        
+
         mediaRecorder = new MediaRecorder(localStream, options);
-        
-        mediaRecorder.ondataavailable = function(e) {
+
+        mediaRecorder.ondataavailable = function (e) {
           if (e.data && e.data.size > 0) {
-            recordedChunks.push(e.data);
+            const chunk = e.data;
+            
+            if (isUndoing) {
+              // Discard any raw data chunks if we are actively resetting after an Undo action
+              return;
+            }
+
+            const chunkIndex = currentChunkIndex++;
+            recordedChunks.push(chunk);
+
+            const isFinalChunk = isStoppingForBall;
+            isStoppingForBall = false; // Reset flag
+
+            const reader = new FileReader();
+            reader.onloadend = function () {
+              if (conn && conn.open) {
+                conn.send({
+                  type: 'video_proof_fragment',
+                  innings: currentBallMeta.innings,
+                  over: currentBallMeta.over,
+                  ball: currentBallMeta.ball,
+                  chunkIndex: chunkIndex,
+                  arrayBuffer: reader.result,
+                  isFinal: isFinalChunk
+                });
+                console.log(`Sent fragment ${chunkIndex} (final: ${isFinalChunk}) for Over ${currentBallMeta.over} Ball ${currentBallMeta.ball}`);
+              }
+            };
+            reader.readAsArrayBuffer(chunk);
           }
         };
 
-        // Start recording immediately
-        mediaRecorder.start();
+        // Start recording and slice chunks automatically every 30 seconds
+        mediaRecorder.start(30000);
         updateRecordingUIState(true, "Recording Next Ball...");
       } catch (e) {
         console.error("MediaRecorder initialize failed:", e);
@@ -501,7 +568,7 @@
     function updateRecordingUIState(isRecording, label) {
       const overlay = document.getElementById('recording-status-overlay');
       const text = document.getElementById('recording-status-text');
-      
+
       if (isRecording) {
         overlay.className = "viewport-overlay recording";
         text.innerText = label;
@@ -514,7 +581,7 @@
     function handleIncomingCommand(data) {
       if (data.action === 'ball_completed') {
         if (!mediaRecorder) return;
-        
+
         // Save current ball metadata
         const metadata = {
           innings: data.innings,
@@ -525,56 +592,50 @@
           isLegal: data.isLegal,
           matchName: data.matchName || "Backyard_Match"
         };
-        
+
         activeMatchName = metadata.matchName.replace(/\s+/g, '_');
         document.getElementById('match-meta-subtitle').innerText = `Match: ${metadata.matchName} • Innings: ${metadata.innings}`;
-        
-        // 1. Trigger recorder stop to yield Blob
-        mediaRecorder.onstop = function() {
+
+        // Cut off current recording immediately
+        isStoppingForBall = true;
+
+        mediaRecorder.onstop = function () {
           const videoBlob = new Blob(recordedChunks, { type: 'video/webm' });
           recordedChunks = []; // Clear array elements instantly to free up heap memory
-          
-          // 2. Restart recording INSTANTLY for the next ball to avoid missing deliveries
-          if (mediaRecorder.state === 'inactive') {
-            mediaRecorder.start();
-            updateRecordingUIState(true, `Recording Over ${metadata.over} Ball ${metadata.ball + 1}...`);
-          }
-          
-          // 3. Convert blob to ArrayBuffer and send to Scorer Phone locally (Fast Direct Transfer)
-          const reader = new FileReader();
-          reader.onloadend = function() {
-            if (conn && conn.open) {
-              conn.send({
-                type: 'video_proof_fast',
-                innings: metadata.innings,
-                over: metadata.over,
-                ball: metadata.ball,
-                arrayBuffer: reader.result
-              });
-              showToast(`Fast P2P sent: Over ${metadata.over} Ball ${metadata.ball}`);
-            }
-          };
-          reader.readAsArrayBuffer(videoBlob);
-          
-          // 4. Archive blob to Microsoft OneDrive in background
+          isStoppingForBall = false;
+
+          // Restart a brand new recording sequence
+          initMediaRecorder();
+
+          // Archive consolidated full ball clip to Microsoft OneDrive in background
           queueOneDriveUpload(videoBlob, metadata);
         };
-        
+
         mediaRecorder.stop();
-        document.getElementById('status-action').innerText = "Processing & sending ball clip...";
-        
+        document.getElementById('status-action').innerText = "Processing & sending final fragment...";
+
       } else if (data.action === 'undo') {
-        showToast("Last ball undone! Resetting camera buffer.");
+        showToast("Last ball undone! Discarding buffer.");
         // Reset current media recorder session without yielding a clip
         if (mediaRecorder && mediaRecorder.state === 'recording') {
-          mediaRecorder.onstop = function() {
+          isUndoing = true;
+          mediaRecorder.onstop = function () {
             recordedChunks = [];
-            mediaRecorder.start();
-            updateRecordingUIState(true, "Recording (State Undone)...");
+            isUndoing = false;
+            initMediaRecorder();
             document.getElementById('status-action').innerText = "Buffer reset after Undo";
           };
           mediaRecorder.stop();
         }
+      } else if (data.action === 'set_active_ball') {
+        currentBallMeta.innings = data.innings;
+        currentBallMeta.over = data.over;
+        currentBallMeta.ball = data.ball;
+        if (data.matchName) {
+          activeMatchName = data.matchName.replace(/\s+/g, '_');
+          document.getElementById('match-meta-subtitle').innerText = `Match: ${data.matchName} • Innings: ${data.innings}`;
+        }
+        console.log("Active recording metadata synchronized:", currentBallMeta);
       }
     }
 
@@ -612,11 +673,11 @@
     function loadOneDriveSettings() {
       const savedClientId = localStorage.getItem('onedrive_client_id');
       const savedTenantId = localStorage.getItem('onedrive_tenant_id') || 'common';
-      
+
       if (savedClientId) {
         document.getElementById('ms-client-id').value = savedClientId;
         document.getElementById('ms-tenant-id').value = savedTenantId;
-        
+
         initializeMSAL(savedClientId, savedTenantId);
       }
     }
@@ -637,7 +698,7 @@
 
       try {
         msalInstance = new msal.PublicClientApplication(msalConfig);
-        
+
         // Handle redirect landing code
         msalInstance.handleRedirectPromise().then(response => {
           if (response) {
@@ -709,7 +770,7 @@
       localStorage.removeItem('onedrive_client_id');
       localStorage.removeItem('onedrive_tenant_id');
       localStorage.removeItem('onedrive_access_token');
-      
+
       if (msalInstance) {
         msalInstance.logoutRedirect();
       } else {
@@ -720,7 +781,7 @@
     function updateOneDriveUI(linked, username = "") {
       const statusLabel = document.getElementById('status-onedrive');
       const logoutBtn = document.getElementById('btn-ms-logout');
-      
+
       if (linked) {
         statusLabel.innerText = `Connected (${username.split('@')[0]})`;
         statusLabel.style.color = 'var(--cricket-green)';
@@ -741,7 +802,7 @@
       const typeTag = (meta.type !== 'run' && meta.type !== 'wicket') ? `_${meta.type}` : '';
       const safeMatchName = activeMatchName;
       const filename = `Over${meta.over}_Ball${meta.ball}_${scoreTag}${typeTag}.webm`;
-      
+
       const uploadTask = {
         id: `${meta.innings}_${meta.over}_${meta.ball}`,
         filename: filename,
@@ -754,7 +815,7 @@
 
       uploadQueue.push(uploadTask);
       updateQueueUI();
-      
+
       // Trigger queue processor if not already uploading
       processUploadQueue();
     }
@@ -766,12 +827,12 @@
 
     function processUploadQueue() {
       if (isUploading || uploadQueue.length === 0) return;
-      
+
       if (!msAccessToken) {
         // If not logged in, we mark all items in the queue as uploaded (failed status on scorer)
         // or just let them wait. Since OneDrive is linked, let's wait or notify scorer they are pending
         notifyScorerArchiveStatus(uploadQueue[0], 'uploading');
-        
+
         // Wait for token
         document.getElementById('status-onedrive').innerText = "Waiting for login token...";
         return;
@@ -779,13 +840,13 @@
 
       isUploading = true;
       const task = uploadQueue[0];
-      
+
       notifyScorerArchiveStatus(task, 'uploading');
       document.getElementById('status-action').innerText = `Uploading ${task.filename}...`;
 
       // Upload binary to OneDrive Path-based API (Graph API)
       const uploadUrl = `https://graph.microsoft.com/v1.0/me/drive/root:/cricket/${activeMatchName}/${task.innings}/${task.filename}:/content`;
-      
+
       fetch(uploadUrl, {
         method: 'PUT',
         headers: {
@@ -794,47 +855,47 @@
         },
         body: task.blob
       })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`OneDrive API upload failed with code ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        showToast(`OneDrive Archived: ${task.filename}`);
-        
-        // Notify Scorer of successful archival status and links
-        notifyScorerArchiveStatus(task, 'archived', data.id, data.webUrl);
-        
-        // Remove from queue and proceed
-        uploadQueue.shift();
-        isUploading = false;
-        updateQueueUI();
-        document.getElementById('status-action').innerText = "Standby (Ready for Ball)";
-        
-        processUploadQueue();
-      })
-      .catch(err => {
-        console.error("OneDrive upload error:", err);
-        task.retries++;
-        
-        if (task.retries >= 3) {
-          // Permafail this item, notify scorer of error, and pop it
-          showToast(`OneDrive Upload Failed: ${task.filename}`);
-          notifyScorerArchiveStatus(task, 'failed');
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`OneDrive API upload failed with code ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          showToast(`OneDrive Archived: ${task.filename}`);
+
+          // Notify Scorer of successful archival status and links
+          notifyScorerArchiveStatus(task, 'archived', data.id, data.webUrl);
+
+          // Remove from queue and proceed
           uploadQueue.shift();
-        } else {
-          // Shift failed item to the end of the queue to retry later
-          uploadQueue.push(uploadQueue.shift());
-        }
-        
-        isUploading = false;
-        updateQueueUI();
-        document.getElementById('status-action').innerText = "Standby (Ready for Ball)";
-        
-        // Wait 5 seconds before retrying another file to avoid rate limits
-        setTimeout(processUploadQueue, 5000);
-      });
+          isUploading = false;
+          updateQueueUI();
+          document.getElementById('status-action').innerText = "Standby (Ready for Ball)";
+
+          processUploadQueue();
+        })
+        .catch(err => {
+          console.error("OneDrive upload error:", err);
+          task.retries++;
+
+          if (task.retries >= 3) {
+            // Permafail this item, notify scorer of error, and pop it
+            showToast(`OneDrive Upload Failed: ${task.filename}`);
+            notifyScorerArchiveStatus(task, 'failed');
+            uploadQueue.shift();
+          } else {
+            // Shift failed item to the end of the queue to retry later
+            uploadQueue.push(uploadQueue.shift());
+          }
+
+          isUploading = false;
+          updateQueueUI();
+          document.getElementById('status-action').innerText = "Standby (Ready for Ball)";
+
+          // Wait 5 seconds before retrying another file to avoid rate limits
+          setTimeout(processUploadQueue, 5000);
+        });
     }
 
     function processRetryQueue() {
@@ -867,4 +928,5 @@
   </script>
 
 </body>
+
 </html>
