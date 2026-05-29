@@ -1810,6 +1810,7 @@
         ballObj.proof.blob = blob;
         ballObj.proof.objectUrl = objectUrl;
         ballObj.proof.status = 'ready';
+        console.log("Local proof ready");
         updateLiveScoringUI();
         console.log(`Proof clip attached to ball for Over ${meta.over} Ball ${meta.ball}.`);
       } else {
@@ -1824,8 +1825,10 @@
 
       const ballObj = findBallObject(inn.balls, meta.over, meta.ball);
       if (ballObj) {
-        ballObj.proof.status = 'failed';
-        updateLiveScoringUI();
+        if (!ballObj.proof.objectUrl) {
+          ballObj.proof.status = 'failed';
+          updateLiveScoringUI();
+        }
       }
     }
 
@@ -1902,9 +1905,10 @@
         
         const ball = findBallObject(inn.balls, data.over, data.ball);
         if (ball) {
-          ball.proof.status = data.status;
+          ball.proof.archiveStatus = data.status;
           ball.proof.oneDriveId = data.oneDriveId || null;
           ball.proof.oneDriveUrl = data.oneDriveUrl || null;
+          console.log("Archive status updated separately");
           
           if (activeRecheckBall === ball) {
             updateRecheckModalArchiveUI(ball);
@@ -2012,9 +2016,9 @@
       const linkSpan = document.getElementById('recheck-archive-link');
       if (ball.proof.oneDriveUrl) {
         linkSpan.innerHTML = `<a href="${ball.proof.oneDriveUrl}" target="_blank" style="color:var(--gold); text-decoration:underline;">Archived</a>`;
-      } else if (ball.proof.status === 'uploading') {
+      } else if (ball.proof.archiveStatus === 'uploading') {
         linkSpan.innerHTML = `<span style="color:var(--gold);"><span class="status-pulse" style="width:6px; height:6px; border-radius:50%; background:var(--gold); display:inline-block; margin-right:4px;"></span>Uploading...</span>`;
-      } else if (ball.proof.status === 'failed') {
+      } else if (ball.proof.archiveStatus === 'failed') {
         linkSpan.innerHTML = `<span style="color:var(--danger-red)">Upload Failed</span>`;
       } else {
         linkSpan.innerHTML = `<span style="color:var(--text-muted)">Local P2P only</span>`;
@@ -2240,6 +2244,7 @@
         timestamp: Date.now(),
         proof: {
           status: "pending",
+          archiveStatus: null,
           blob: null,
           objectUrl: null,
           oneDriveId: null,
@@ -2450,7 +2455,7 @@
       if (isCameraEnabled && inn.balls.length > 0) {
         const lastBall = inn.balls[inn.balls.length - 1];
         if (lastBall.proof) {
-          if (lastBall.proof.status === "ready" && lastBall.proof.objectUrl) {
+          if (lastBall.proof.objectUrl) {
             recheckBtn.style.display = 'inline-flex';
             recheckBtn.innerHTML = '🔍 Recheck Last Ball';
             recheckBtn.disabled = false;
