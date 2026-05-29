@@ -1556,10 +1556,33 @@
       }
     }
 
+    function clearAllObjectUrls() {
+      if (!match || !match.innings) return;
+      match.innings.forEach(inn => {
+        if (inn.balls) {
+          inn.balls.forEach(ball => {
+            if (ball.proof) {
+              if (ball.proof.objectUrl) {
+                try {
+                  URL.revokeObjectURL(ball.proof.objectUrl);
+                } catch (e) {
+                  console.warn("Failed to revoke object URL:", e);
+                }
+                ball.proof.objectUrl = null;
+              }
+              ball.proof.blob = null;
+            }
+          });
+        }
+      });
+      console.log("All proof video object URLs revoked.");
+    }
+
     function resumeSavedState() {
       try {
         const saved = localStorage.getItem('cricket_backyard_autosave_v2');
         if (saved) {
+          clearAllObjectUrls();
           const parsed = JSON.parse(saved);
           match = parsed.match;
           stateHistory = parsed.stateHistory;
@@ -1578,6 +1601,7 @@
     }
 
     function discardSavedState() {
+      clearAllObjectUrls();
       localStorage.removeItem('cricket_backyard_autosave_v2');
       document.getElementById('resume-banner').classList.remove('active');
       showToast("Auto save cleared.");
@@ -1773,86 +1797,104 @@
       });
     }
 
-    function arrayBufferToBase64(buffer) {
-      const bytes = new Uint8Array(buffer);
-      let binary = '';
-      for (let i = 0; i < bytes.byteLength; i++) {
-        binary += String.fromCharCode(bytes[i]);
-      }
-      return btoa(binary);
-    }
+    // Part 3: Top-level in-memory Map for incoming clips
+    const incomingClips = new Map();
 
-    function base64ToArrayBuffer(base64) {
-      const binaryString = atob(base64);
-      const len = binaryString.length;
-      const bytes = new Uint8Array(len);
-      for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-      return bytes.buffer;
-    }
-
-    function reassembleVideoProof(innings, over, ballNum) {
-      const innIdx = innings === "Innings1" ? 0 : 1;
+    function attachProofToBall(meta, blob, objectUrl) {
+      const innIdx = meta.innings === "Innings1" ? 0 : 1;
       const inn = match.innings[innIdx];
       if (!inn) return;
-      
-      const ballObj = findBallObject(inn.balls, over, ballNum);
-      if (!ballObj) return;
 
-      const prefix = `fragment_${innings}_${over}_${ballNum}_`;
-      const fragments = [];
-      const keysToRemove = [];
-
-      for (let i = 0; i < sessionStorage.length; i++) {
-        const key = sessionStorage.key(i);
-        if (key && key.startsWith(prefix)) {
-          const chunkIndex = parseInt(key.substring(prefix.length));
-          const base64Data = sessionStorage.getItem(key);
-          fragments.push({ chunkIndex, base64Data });
-          keysToRemove.push(key);
-        }
+      const ballObj = findBallObject(inn.balls, meta.over, meta.ball);
+      if (ballObj) {
+        ballObj.proof.blob = blob;
+        ballObj.proof.objectUrl = objectUrl;
+        ballObj.proof.status = 'ready';
+        updateLiveScoringUI();
+        console.log(`Proof clip attached to ball for Over ${meta.over} Ball ${meta.ball}.`);
+      } else {
+        console.warn(`Ball object not found for attaching proof: Over ${meta.over} Ball ${meta.ball}`);
       }
-
-      if (fragments.length === 0) return;
-
-      // Sort sequentially by chunkIndex metadata
-      fragments.sort((a, b) => a.chunkIndex - b.chunkIndex);
-
-      // Reassemble sequentially using array mapping
-      const sortedFragmentBlobsArray = fragments.map(f => {
-        const arrayBuf = base64ToArrayBuffer(f.base64Data);
-        return new Blob([arrayBuf], { type: 'video/webm' });
-      });
-
-      const reassembledBlob = new Blob(sortedFragmentBlobsArray, { type: 'video/webm' });
-      
-      ballObj.proof.blob = reassembledBlob;
-      ballObj.proof.objectUrl = URL.createObjectURL(reassembledBlob);
-      ballObj.proof.status = 'ready';
-
-      // Wipe raw fragments from local storage
-      keysToRemove.forEach(k => sessionStorage.removeItem(k));
-      
-      console.log(`Reassembled video proof for ${innings}_Over${over}_Ball${ballNum} with ${fragments.length} chunks.`);
-      
-      updateLiveScoringUI();
     }
 
-    function handleIncomingData(data) {
-      if (data.type === 'video_proof_fragment') {
-        const inn = match.innings[data.innings === "Innings1" ? 0 : 1];
-        if (!inn) return;
-        
-        // Uniquely structured key with chunkIndex
-        const trackingKey = `fragment_${data.innings}_${data.over}_${data.ball}_${data.chunkIndex}`;
-        const base64Data = arrayBufferToBase64(data.arrayBuffer);
-        
-        sessionStorage.setItem(trackingKey, base64Data);
-        console.log(`Fragment ${data.chunkIndex} received for ${data.innings}_Over${data.over}_Ball${data.ball}`);
+    function markProofStatusFailed(meta) {
+      const innIdx = meta.innings === "Innings1" ? 0 : 1;
+      const inn = match.innings[innIdx];
+      if (!inn) return;
 
-        if (data.isFinal) {
-          reassembleVideoProof(data.innings, data.over, data.ball);
+      const ballObj = findBallObject(inn.balls, meta.over, meta.ball);
+      if (ballObj) {
+        ballObj.proof.status = 'failed';
+        updateLiveScoringUI();
+      }
+    }
+
+    // Part 3: Timeout cleanup every 30 seconds for clips older than 2 minutes (prevent leaks)
+    setInterval(() => {
+      const now = Date.now();
+      for (const [clipId, clip] of incomingClips.entries()) {
+        if (now - clip.startedAt > 120000) {
+          console.warn(`P2P Video receiving timeout for clip: ${clipId}. Marking failed.`);
+          markProofStatusFailed(clip.meta);
+          incomingClips.delete(clipId);
+        }
+      }
+    }, 30000);
+
+    function handleIncomingData(data) {
+      if (data.type === 'video_start') {
+        incomingClips.set(data.clipId, {
+          meta: data.meta,
+          mimeType: data.mimeType,
+          totalPieces: data.totalPieces,
+          totalBytes: data.totalBytes,
+          pieces: new Array(data.totalPieces),
+          receivedPieces: 0,
+          receivedBytes: 0,
+          startedAt: Date.now()
+        });
+        console.log(`P2P clip start: ${data.clipId}, expected pieces: ${data.totalPieces}`);
+
+        // Set status to pending as we start receiving chunks
+        const innIdx = data.meta.innings === "Innings1" ? 0 : 1;
+        const inn = match.innings[innIdx];
+        if (inn) {
+          const ballObj = findBallObject(inn.balls, data.meta.over, data.meta.ball);
+          if (ballObj) {
+            ballObj.proof.status = 'pending';
+            updateLiveScoringUI();
+          }
+        }
+      } else if (data.type === 'video_piece') {
+        const clip = incomingClips.get(data.clipId);
+        if (clip) {
+          if (clip.pieces[data.index] === undefined || clip.pieces[data.index] === null) {
+            clip.pieces[data.index] = data.buffer;
+            clip.receivedPieces++;
+            clip.receivedBytes += data.buffer.byteLength;
+          }
+        }
+      } else if (data.type === 'video_end') {
+        const clip = incomingClips.get(data.clipId);
+        if (clip) {
+          let complete = true;
+          for (let i = 0; i < clip.totalPieces; i++) {
+            if (!clip.pieces[i]) {
+              complete = false;
+              break;
+            }
+          }
+
+          if (!complete) {
+            console.warn(`P2P Video incomplete pieces for: ${data.clipId}. (Got ${clip.receivedPieces}/${clip.totalPieces})`);
+            markProofStatusFailed(clip.meta);
+          } else {
+            const blob = new Blob(clip.pieces, { type: clip.mimeType || 'video/webm' });
+            const objectUrl = URL.createObjectURL(blob);
+            console.log(`P2P clip assembled successfully: ${data.clipId}, size: ${blob.size} bytes`);
+            attachProofToBall(clip.meta, blob, objectUrl);
+          }
+          incomingClips.delete(data.clipId);
         }
       } else if (data.type === 'archive_status') {
         const inn = match.innings[data.innings === "Innings1" ? 0 : 1];
@@ -1995,15 +2037,6 @@
       player.pause();
       player.src = "";
       
-      if (activeRecheckBall && activeRecheckBall.proof) {
-        if (activeRecheckBall.proof.objectUrl) {
-          URL.revokeObjectURL(activeRecheckBall.proof.objectUrl);
-          activeRecheckBall.proof.objectUrl = null;
-        }
-        activeRecheckBall.proof.blob = null; // release binary memory
-        showToast("Temporary clip memory released 🧹");
-      }
-      
       activeRecheckBall = null;
       document.getElementById('recheck-modal').classList.remove('active');
       updateLiveScoringUI();
@@ -2098,6 +2131,7 @@
        SCREEN 4: MAIN SCORING SCREEN INITIALIZATION (FIXED!)
        ========================================== */
     function initializeScoringScreenState() {
+      clearAllObjectUrls();
       if (!match.superOverActive) {
         match.currentInnings = 0;
         match.target = null;
@@ -2235,9 +2269,6 @@
           matchName: match.matchName
         });
       }
-
-      // Compile current fragments in storage (will fully merge when final fragment is received via handleIncomingData)
-      reassembleVideoProof(inningsStr, meta.over, meta.ballInOver);
 
       // Live Audio & Vibration animations
       const runsLabel = document.getElementById('live-runs');
@@ -2418,8 +2449,25 @@
       const recheckBtn = document.getElementById('btn-recheck-last');
       if (isCameraEnabled && inn.balls.length > 0) {
         const lastBall = inn.balls[inn.balls.length - 1];
-        if (lastBall.proof && lastBall.proof.objectUrl) {
-          recheckBtn.style.display = 'inline-flex';
+        if (lastBall.proof) {
+          if (lastBall.proof.status === "ready" && lastBall.proof.objectUrl) {
+            recheckBtn.style.display = 'inline-flex';
+            recheckBtn.innerHTML = '🔍 Recheck Last Ball';
+            recheckBtn.disabled = false;
+            recheckBtn.style.opacity = '1';
+          } else if (lastBall.proof.status === "pending") {
+            recheckBtn.style.display = 'inline-flex';
+            recheckBtn.innerHTML = '⏳ Proof receiving...';
+            recheckBtn.disabled = true;
+            recheckBtn.style.opacity = '0.6';
+          } else if (lastBall.proof.status === "failed") {
+            recheckBtn.style.display = 'inline-flex';
+            recheckBtn.innerHTML = '❌ Proof unavailable';
+            recheckBtn.disabled = true;
+            recheckBtn.style.opacity = '0.6';
+          } else {
+            recheckBtn.style.display = 'none';
+          }
         } else {
           recheckBtn.style.display = 'none';
         }
@@ -2799,6 +2847,7 @@
     }
 
     function initiateNewMatchSameTeams() {
+      clearAllObjectUrls();
       match.superOverActive = false;
       match.superOverCount = 0;
       document.getElementById('scoring-badge').classList.remove('active');
@@ -2811,6 +2860,7 @@
     }
 
     function resetToBeginning() {
+      clearAllObjectUrls();
       match.superOverActive = false;
       match.superOverCount = 0;
       document.getElementById('scoring-badge').classList.remove('active');
